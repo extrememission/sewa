@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spiritual Exercises Journal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <style>
+        /* --- Basic Setup & Typography --- */
+        :root {
+            --primary-bg: #fdfaf5;
+            --secondary-bg: #ffffff;
+            --text-color: #3a3a3a;
+            --heading-color: #1a2c42;
+            --accent-color: #8a6d46;
+            --border-color: #e0d9cf;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Lora', serif;
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+
+        /* --- Main Layout (App Container) --- */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar (Navigation) --- */
+        .sidebar {
+            width: 320px;
+            background-color: var(--secondary-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px var(--shadow-color);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: #777;
+            margin: 5px 0 0;
+        }
+
+        .category-list h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .exercise-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .exercise-list-item a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: var(--text-color);
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: background-color 0.2s, color 0.2s;
+            font-weight: 500;
+        }
+
+        .exercise-list-item a:hover {
+            background-color: #f0ebe4;
+        }
+
+        .exercise-list-item a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 700;
+        }
+        
+        /* --- Main Content Area --- */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .welcome-view, .exercise-view {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .welcome-view {
+            text-align: center;
+            padding-top: 10vh;
+        }
+
+        .welcome-view h1 {
+            font-size: 2.5rem;
+        }
+
+        .welcome-view p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        .exercise-view h1 {
+            margin-top: 0;
+            font-size: 2.2rem;
+        }
+
+        .exercise-scripture {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            padding: 15px;
+            background-color: #f7f3ed;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .exercise-scripture strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .journal-area label {
+            display: block;
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .journal-textarea {
+            width: 100%;
+            min-height: 300px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            resize: vertical;
+            box-shadow: inset 0 1px 4px var(--shadow-color);
+        }
+        
+        .journal-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(138, 109, 70, 0.2);
+        }
+
+        .save-button {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 20px;
+        }
+
+        .save-button:hover {
+            background-color: #6d5635;
+        }
+        
+        .save-button:active {
+            transform: scale(0.98);
+        }
+
+        #save-feedback {
+            display: inline-block;
+            margin-left: 15px;
+            color: green;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        /* --- Mobile Responsiveness --- */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 1000;
+                transform: translateX(-100%);
+                box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                padding: 20px;
+                padding-top: 80px; /* Space for the fixed toggle button */
+            }
+            
+            .exercise-view h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle">&#9776;</button>
+
+        <!-- Sidebar for Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>The Believer's Walk</h2>
+                <p>A Journal of Spiritual Exercises</p>
+            </div>
+            <nav id="navigation-menu">
+                <!-- Categories and exercises will be dynamically inserted here by JavaScript -->
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="main-content">
+            <div class="welcome-view" id="welcome-view">
+                <h1>Welcome, Child of God.</h1>
+                <p>Select a spiritual exercise from the menu to begin your journey of reflection and growth in the Lord.</p>
+                <p><em>"Thy word is a lamp unto my feet, and a light unto my path." - Psalm 119:105</em></p>
+            </div>
+
+            <div class="exercise-view" id="exercise-view" style="display: none;">
+                <h1 id="exercise-title"></h1>
+                <div class="exercise-scripture">
+                    <p id="exercise-explanation"></p>
+                    <strong id="exercise-reference"></strong>
+                </div>
+                <div class="journal-area">
+                    <label for="journal-entry">My Thoughts, Confessions, and Prayers</label>
+                    <textarea id="journal-entry" class="journal-textarea" placeholder="Write your reflections here..."></textarea>
+                </div>
+                <button class="save-button" id="save-button">Save Entry</button>
+                <span id="save-feedback">Saved!</span>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    // --- DATA: The 100 Spiritual Exercises ---
+    // Stored in a structured array. This makes it easy to add, remove, or edit exercises without touching the HTML.
+    const spiritualExercises = [
+        { id: 1, category: 'Prayer & Supplication', title: 'The Morning Watch', explanation: 'Begin your day with prayer and dedication to God.', reference: 'Psalm 5:3' },
+        { id: 2, category: 'Prayer & Supplication', title: 'Evening Prayer', explanation: 'End your day with thanks, committing it to God.', reference: 'Psalm 4:8' },
+        { id: 3, category: 'Prayer & Supplication', title: 'The Model Prayer', explanation: 'Pray the prayer Jesus taught His disciples as guide.', reference: 'Matthew 6:9-13' },
+        { id: 4, category: 'Prayer & Supplication', title: 'Praying in Secret', explanation: 'Find a private place to commune alone with God.', reference: 'Matthew 6:6' },
+        { id: 5, category: 'Prayer & Supplication', title: 'Intercessory Prayer', explanation: 'Pray specifically for the needs and salvation of others.', reference: '1 Timothy 2:1' },
+        { id: 6, category: 'Prayer & Supplication', title: 'Prayer of Thanksgiving', explanation: 'Offer prayers focused entirely on gratitude for God\'s blessings.', reference: 'Philippians 4:6' },
+        { id: 7, category: 'Prayer & Supplication', title: 'A Prayer of Confession', explanation: 'Humbly confess your specific sins to God for forgiveness.', reference: '1 John 1:9' },
+        { id: 8, category: 'Prayer & Supplication', title: 'Praying Scripture', explanation: 'Pray the words of a Psalm or another passage back to God.', reference: '2 Samuel 7:27' },
+        { id: 9, category: 'Prayer & Supplication', title: 'Prayer Walking', explanation: 'Walk through your community while praying for its people.', reference: '2 Chronicles 7:14' },
+        { id: 10, category: 'Prayer & Supplication', title: 'Ceaseless Prayer', explanation: 'Maintain a constant attitude of prayer throughout your day.', reference: '1 Thessalonians 5:17' },
+        { id: 11, category: 'Prayer & Supplication', title: 'Pray for Enemies', explanation: 'Ask God to bless and save those who persecute you.', reference: 'Matthew 5:44' },
+        { id: 12, category: 'Prayer & Supplication', title: 'Prayer Journaling', explanation: 'Write down your prayers and God\'s answers to remember faithfulness.', reference: 'Habakkuk 2:2' },
+        { id: 13, category: 'Prayer & Supplication', title: 'Family Altar', explanation: 'Lead your family in a dedicated time of prayer.', reference: 'Genesis 35:2-3' },
+        { id: 14, category: 'Prayer & Supplication', title: 'Fasting & Prayer', explanation: 'Abstain from food for a time to focus on God.', reference: 'Matthew 17:21' },
+        { id: 15, category: 'Prayer & Supplication', title: 'Praying for Labourers', explanation: 'Ask God to send more workers into His harvest.', reference: 'Matthew 9:38' },
+        { id: 16, category: 'Study of God\'s Word', title: 'Daily Bread', explanation: 'Read a portion of the Scriptures every single day.', reference: 'Matthew 4:4' },
+        { id: 17, category: 'Study of God\'s Word', title: 'Hiding the Word', explanation: 'Commit verses of Scripture to memory for spiritual strength.', reference: 'Psalm 119:11' },
+        { id: 18, category: 'Study of God\'s Word', title: 'Scripture Meditation', explanation: 'Ponder deeply on a single verse or passage.', reference: 'Psalm 1:2' },
+        { id: 19, category: 'Study of God\'s Word', title: 'Book Study', explanation: 'Read and study an entire book of the Bible.', reference: 'Nehemiah 8:8' },
+        { id: 20, category: 'Study of God\'s Word', title: 'Topical Study', explanation: 'Study what the whole Bible says about one subject.', reference: 'Acts 17:11' },
+        { id: 21, category: 'Study of God\'s Word', title: 'Character Study', explanation: 'Study the life of a single person in the Bible.', reference: '1 Corinthians 10:11' },
+        { id: 22, category: 'Study of God\'s Word', title: 'Read Proverbs Daily', explanation: 'Read the chapter of Proverbs that corresponds to the day.', reference: 'Proverbs 1:5' },
+        { id: 23, category: 'Study of God\'s Word', title: 'Listening to the Word', explanation: 'Listen to an audio recording of the Holy Scriptures.', reference: 'Romans 10:17' },
+        { id: 24, category: 'Study of God\'s Word', title: 'Public Reading', explanation: 'Read the Bible aloud to your family or another.', reference: '1 Timothy 4:13' },
+        { id: 25, category: 'Study of God\'s Word', title: 'Teaching a Child', explanation: 'Teach a Bible story or verse to a child.', reference: 'Deuteronomy 6:7' },
+        { id: 26, category: 'Study of God\'s Word', title: 'A Concordance Search', explanation: 'Use a concordance to trace a word through Scripture.', reference: '2 Timothy 2:15' },
+        { id: 27, category: 'Study of God\'s Word', title: 'Compare Scripture', explanation: 'Compare verses to let Scripture interpret Scripture.', reference: '1 Corinthians 2:13' },
+        { id: 28, category: 'Study of God\'s Word', title: 'Bible Outlining', explanation: 'Outline a chapter or book to see its structure.', reference: 'Luke 1:3' },
+        { id: 29, category: 'Study of God\'s Word', title: 'Handwriting Scripture', explanation: 'Write out a chapter of the Bible by hand.', reference: 'Deuteronomy 17:18' },
+        { id: 30, category: 'Study of God\'s Word', title: 'Heeding the Word', explanation: 'Make a specific plan to obey what you have read.', reference: 'James 1:22' },
+        { id: 31, category: 'Worship & Adoration', title: 'Singing Hymns', explanation: 'Sing hymns of the faith, alone or with others.', reference: 'Colossians 3:16' },
+        { id: 32, category: 'Worship & Adoration', title: 'Making a Joyful Noise', explanation: 'Praise God aloud with joyful, heartfelt expression.', reference: 'Psalm 100:1' },
+        { id: 33, category: 'Worship & Adoration', title: 'Listing His Attributes', explanation: 'Make a list of God\'s character traits and praise Him.', reference: 'Psalm 145:3' },
+        { id: 34, category: 'Worship & Adoration', title: 'Praising His Works', explanation: 'Thank God specifically for His mighty acts and creation.', reference: 'Psalm 150:2' },
+        { id: 35, category: 'Worship & Adoration', title: 'Attending Church Faithfully', explanation: 'Do not forsake the assembly of the saints.', reference: 'Hebrews 10:25' },
+        { id: 36, category: 'Worship & Adoration', title: 'Remembering the Lord\'s Supper', explanation: 'Partake in the ordinance with a solemn, thankful heart.', reference: '1 Corinthians 11:24' },
+        { id: 37, category: 'Worship & Adoration', title: 'Respecting God\'s House', explanation: 'Behave with reverence and sobriety in the church building.', reference: 'Habakkuk 2:20' },
+        { id: 38, category: 'Worship & Adoration', title: 'A Sabbath Rest', explanation: 'Set aside the Lord\'s Day for rest and worship.', reference: 'Exodus 20:8' },
+        { id: 39, category: 'Worship & Adoration', title: 'Silent Adoration', explanation: 'Sit in silence, simply adoring God for who He is.', reference: 'Psalm 46:10' },
+        { id: 40, category: 'Worship & Adoration', title: 'Voicing Praise', explanation: 'Tell another person something great God has done for you.', reference: 'Psalm 34:1' },
+        { id: 41, category: 'Service & Fellowship', title: 'Encouraging a Brother', explanation: 'Speak a word of encouragement to a fellow believer.', reference: '1 Thessalonians 5:11' },
+        { id: 42, category: 'Service & Fellowship', title: 'Visiting the Sick', explanation: 'Visit and pray with someone who is ill.', reference: 'Matthew 25:36' },
+        { id: 43, category: 'Service & Fellowship', title: 'Hospitality', explanation: 'Open your home to a fellow believer for fellowship.', reference: 'Romans 12:13' },
+        { id: 44, category: 'Service & Fellowship', title: 'Bearing Burdens', explanation: 'Help carry the load of someone who is struggling.', reference: 'Galatians 6:2' },
+        { id: 45, category: 'Service & Fellowship', title: 'Serving in Church', explanation: 'Volunteer for a practical need within your local church.', reference: '1 Peter 4:10' },
+        { id: 46, category: 'Service & Fellowship', title: 'A Phone Call of Care', explanation: 'Call someone from church just to check on them.', reference: '1 John 3:18' },
+        { id: 47, category: 'Service & Fellowship', title: 'Writing a Note', explanation: 'Write a letter of encouragement to a pastor or missionary.', reference: '2 Corinthians 1:3-4' },
+        { id: 48, category: 'Service & Fellowship', title: 'Caring for Widows', explanation: 'Provide practical help or comfort to a widow.', reference: 'James 1:27' },
+        { id: 49, category: 'Service & Fellowship', title: 'Giving a Cup of Water', explanation: 'Perform a simple act of kindness in Christ\'s name.', reference: 'Matthew 10:42' },
+        { id: 50, category: 'Service & Fellowship', title: 'Forgiving a Debt', explanation: 'Forgive someone who has wronged you, as Christ forgave.', reference: 'Ephesians 4:32' },
+        { id: 51, category: 'Service & Fellowship', title: 'Restoring a Brother', explanation: 'Gently help a brother who has fallen into sin.', reference: 'Galatians 6:1' },
+        { id: 52, category: 'Service & Fellowship', title: 'Submitting to One Another', explanation: 'Humbly prefer others and yield in love.', reference: 'Ephesians 5:21' },
+        { id: 53, category: 'Service & Fellowship', title: 'Praying with a Believer', explanation: 'Ask another believer to pray with you about something specific.', reference: 'James 5:16' },
+        { id: 54, category: 'Service & Fellowship', title: 'Mentoring a Younger Believer', explanation: 'Disciple someone who is newer in the faith.', reference: 'Titus 2:3-4' },
+        { id: 55, category: 'Service & Fellowship', title: 'Honouring the Elderly', explanation: 'Show special respect and deference to the aged saints.', reference: 'Leviticus 19:32' },
+        { id: 56, category: 'Personal Holiness & Discipleship', title: 'Examining Yourself', explanation: 'Test your own faith to see if you are in Christ.', reference: '2 Corinthians 13:5' },
+        { id: 57, category: 'Personal Holiness & Discipleship', title: 'Mortifying the Flesh', explanation: 'Actively put to death the sinful deeds of the body.', reference: 'Romans 8:13' },
+        { id: 58, category: 'Personal Holiness & Discipleship', title: 'Guarding Your Heart', explanation: 'Be watchful over the affections and motives of your heart.', reference: 'Proverbs 4:23' },
+        { id: 59, category: 'Personal Holiness & Discipleship', title: 'Guarding Your Eyes', explanation: 'Be deliberate about what you allow yourself to see.', reference: 'Job 31:1' },
+        { id: 60, category: 'Personal Holiness & Discipleship', title: 'Bridling Your Tongue', explanation: 'Practice speaking with grace and restrain from evil words.', reference: 'James 1:26' },
+        { id: 61, category: 'Personal Holiness & Discipleship', title: 'Shunning Gossip', explanation: 'Refuse to listen to or spread unkind reports about others.', reference: 'Proverbs 20:19' },
+        { id: 62, category: 'Personal Holiness & Discipleship', title: 'Practicing Humility', explanation: 'Consider others as better than yourself in lowliness of mind.', reference: 'Philippians 2:3' },
+        { id: 63, category: 'Personal Holiness & Discipleship', title: 'Cultivating Patience', explanation: 'Practice enduring difficult situations or people without complaint.', reference: 'James 1:4' },
+        { id: 64, category: 'Personal Holiness & Discipleship', title: 'Pursuing Peace', explanation: 'Actively seek to live peaceably with all men.', reference: 'Romans 12:18' },
+        { id: 65, category: 'Personal Holiness & Discipleship', title: 'Choosing Godly Friends', explanation: 'Seek fellowship with those who walk in wisdom.', reference: 'Proverbs 13:20' },
+        { id: 66, category: 'Personal Holiness & Discipleship', title: 'Redeeming the Time', explanation: 'Use your time wisely for eternal, not worldly, purposes.', reference: 'Ephesians 5:16' },
+        { id: 67, category: 'Personal Holiness & Discipleship', title: 'Thinking on Good Things', explanation: 'Purposely focus your mind on things that are pure.', reference: 'Philippians 4:8' },
+        { id: 68, category: 'Personal Holiness & Discipleship', title: 'Putting on Christ', explanation: 'Consciously seek to live and act like Jesus today.', reference: 'Romans 13:14' },
+        { id: 69, category: 'Personal Holiness & Discipleship', title: 'A Media Fast', explanation: 'Abstain from television or internet for a set time.', reference: 'Psalm 101:3' },
+        { id: 70, category: 'Personal Holiness & Discipleship', title: 'Contentment Practice', explanation: 'Find a reason to be content in your current circumstance.', reference: 'Philippians 4:11' },
+        { id: 71, 'category': 'Personal Holiness & Discipleship', title: 'Fleeing Temptation', explanation: 'Physically remove yourself from a situation of temptation.', reference: '1 Corinthians 6:18' },
+        { id: 72, category: 'Personal Holiness & Discipleship', title: 'Self-Denial', explanation: 'Deny yourself a legitimate pleasure for a spiritual purpose.', reference: 'Luke 9:23' },
+        { id: 73, category: 'Personal Holiness & Discipleship', title: 'Practicing Honesty', explanation: 'Be scrupulously honest in a small, unseen matter.', reference: 'Luke 16:10' },
+        { id: 74, category: 'Personal Holiness & Discipleship', title: 'Keeping a Promise', explanation: 'Fulfill a promise you made, keeping your word.', reference: 'Psalm 15:4' },
+        { id: 75, category: 'Personal Holiness & Discipleship', title: 'A Grumbling Fast', explanation: 'Go a full day without complaining about anything.', reference: 'Philippians 2:14' },
+        { id: 76, category: 'Evangelism & Witnessing', title: 'Giving a Testimony', explanation: 'Write out your testimony of salvation to share.', reference: 'Mark 5:19' },
+        { id: 77, category: 'Evangelism & Witnessing', title: 'Praying for the Lost', explanation: 'Pray by name for the salvation of specific people.', reference: 'Romans 10:1' },
+        { id: 78, category: 'Evangelism & Witnessing', title: 'Gospel Tract Distribution', explanation: 'Leave a gospel tract in a public place.', reference: 'Psalm 68:11' },
+        { id: 79, category: 'Evangelism & Witnessing', title: 'Being Ready with an Answer', explanation: 'Prepare to explain the hope that is in you.', reference: '1 Peter 3:15' },
+        { id: 80, category: 'Evangelism & Witnessing', title: 'Answering a Question', explanation: 'Answer a spiritual question someone asks with Scripture.', reference: 'Colossians 4:6' },
+        { id: 81, category: 'Evangelism & Witnessing', title: 'Inviting to Church', explanation: 'Personally invite a friend or neighbor to a church service.', reference: 'Luke 14:23' },
+        { id: 82, category: 'Evangelism & Witnessing', title: 'Living a Quiet Testimony', explanation: 'Let your good works be a silent witness at work.', reference: '1 Peter 2:12' },
+        { id: 83, category: 'Evangelism & Witnessing', title: 'Sharing the Gospel', explanation: 'Intentionally share the plan of salvation with someone.', reference: 'Acts 1:8' },
+        { id: 84, category: 'Evangelism & Witnessing', title: 'Supporting Missions', explanation: 'Give financially to the support of a missionary.', reference: 'Philippians 4:15-17' },
+        { id: 85, category: 'Evangelism & Witnessing', title: 'Writing to a Missionary', explanation: 'Write a letter to a missionary on the field.', reference: '3 John 1:8' },
+        { id: 86, category: 'Trust, Stewardship & Surrender', title: 'Tithing Cheerfully', explanation: 'Give the first tenth of your increase back to God.', reference: 'Malachi 3:10' },
+        { id: 87, category: 'Trust, Stewardship & Surrender', title: 'Giving an Offering', explanation: 'Give a free-will offering above the tithe joyfully.', reference: '2 Corinthians 9:7' },
+        { id: 88, category: 'Trust, Stewardship & Surrender', title: 'Casting Your Cares', explanation: 'Verbally give a specific anxiety over to the Lord.', reference: '1 Peter 5:7' },
+        { id: 89, category: 'Trust, Stewardship & Surrender', title: 'Trusting in a Trial', explanation: 'Acknowledge God\'s sovereignty in the midst of a difficulty.', reference: 'Job 13:15' },
+        { id: 90, category: 'Trust, Stewardship & Surrender', title: 'A "Commitment to God" Act', explanation: 'Make a conscious decision to commit one area of life to God.', reference: 'Proverbs 16:3' },
+        { id: 91, category: 'Trust, Stewardship & Surrender', title: 'Acknowledging God', explanation: 'Verbally acknowledge God in a decision you have to make.', reference: 'Proverbs 3:6' },
+        { id: 92, category: 'Trust, Stewardship & Surrender', title: 'Waiting on the LORD', explanation: 'Purposefully wait for God\'s timing without forcing a solution.', reference: 'Isaiah 40:31' },
+        { id: 93, category: 'Trust, Stewardship & Surrender', title: 'A Stewardship Review', explanation: 'Review your finances and time, asking if they honor God.', reference: '1 Corinthians 4:2' },
+        { id: 94, category: 'Trust, Stewardship & Surrender', title: 'Yielding Your Rights', explanation: 'Willingly give up a personal right for another\'s sake.', reference: '1 Corinthians 9:12' },
+        { id: 95, category: 'Trust, Stewardship & Surrender', title: 'Remembering God\'s Faithfulness', explanation: 'Recount specific times God has been faithful in your past.', reference: 'Lamentations 3:22-23' },
+        { id: 96, category: 'Trust, Stewardship & Surrender', title: 'Resting in Providence', explanation: 'Choose to trust God\'s unseen plan for your life.', reference: 'Romans 8:28' },
+        { id: 97, category: 'Trust, Stewardship & Surrender', title: 'Labouring with Diligence', explanation: 'Do your daily work heartily, as unto the Lord.', reference: 'Colossians 3:23' },
+        { id: 98, category: 'Trust, Stewardship & Surrender', title: 'Using Your Talents', explanation: 'Use a God-given ability for His glory, not your own.', reference: 'Matthew 25:21' },
+        { id: 99, category: 'Trust, Stewardship & Surrender', title: 'Seeking Godly Counsel', explanation: 'Ask a wise, older believer for advice on a matter.', reference: 'Proverbs 11:14' },
+        { id: 100, category: 'Trust, Stewardship & Surrender', title: 'A Final Surrender', explanation: 'End the day by saying, "Thy will be done."', reference: 'Luke 22:42' }
+    ];
+
+    // --- APPLICATION LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get references to all the important elements on the page
+        const navigationMenu = document.getElementById('navigation-menu');
+        const welcomeView = document.getElementById('welcome-view');
+        const exerciseView = document.getElementById('exercise-view');
+        const exerciseTitle = document.getElementById('exercise-title');
+        const exerciseExplanation = document.getElementById('exercise-explanation');
+        const exerciseReference = document.getElementById('exercise-reference');
+        const journalEntry = document.getElementById('journal-entry');
+        const saveButton = document.getElementById('save-button');
+        const saveFeedback = document.getElementById('save-feedback');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+
+        let currentExerciseId = null;
+
+        // --- Function to build the navigation menu from the data array ---
+        function populateNavMenu() {
+            const categories = {};
+            // Group exercises by category
+            spiritualExercises.forEach(ex => {
+                if (!categories[ex.category]) {
+                    categories[ex.category] = [];
+                }
+                categories[ex.category].push(ex);
+            });
+
+            // Create the HTML for the menu
+            for (const category in categories) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category-list';
+                
+                const categoryTitle = document.createElement('h3');
+                categoryTitle.textContent = category;
+                categoryDiv.appendChild(categoryTitle);
+                
+                const exerciseList = document.createElement('ul');
+                exerciseList.className = 'exercise-list';
+
+                categories[category].forEach(ex => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'exercise-list-item';
+                    const link = document.createElement('a');
+                    link.href = `#exercise-${ex.id}`;
+                    link.textContent = `${ex.id}. ${ex.title}`;
+                    link.dataset.id = ex.id; // Store the ID for easy access
+                    listItem.appendChild(link);
+                    exerciseList.appendChild(listItem);
+                });
+                categoryDiv.appendChild(exerciseList);
+                navigationMenu.appendChild(categoryDiv);
+            }
+        }
+
+        // --- Function to display a selected exercise ---
+        function showExercise(id) {
+            currentExerciseId = parseInt(id);
+            const exercise = spiritualExercises.find(ex => ex.id === currentExerciseId);
+
+            if (exercise) {
+                // Update the content
+                exerciseTitle.textContent = `${exercise.id}. ${exercise.title}`;
+                exerciseExplanation.textContent = exercise.explanation;
+                exerciseReference.textContent = exercise.reference;
+
+                // Load saved entry from localStorage
+                journalEntry.value = localStorage.getItem(`journalEntry-${currentExerciseId}`) || '';
+
+                // Switch views
+                welcomeView.style.display = 'none';
+                exerciseView.style.display = 'block';
+
+                // Update active link in sidebar
+                document.querySelectorAll('.exercise-list-item a').forEach(a => {
+                    a.classList.remove('active');
+                });
+                const activeLink = document.querySelector(`.exercise-list-item a[data-id='${currentExerciseId}']`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+                
+                // On mobile, close the sidebar after selection
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        }
+
+        // --- Event Listener for the navigation menu ---
+        navigationMenu.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (e.target.tagName === 'A') {
+                const id = e.target.dataset.id;
+                showExercise(id);
+            }
+        });
+
+        // --- Event Listener for the save button ---
+        saveButton.addEventListener('click', () => {
+            if (currentExerciseId !== null) {
+                // Save the current text area content to localStorage
+                localStorage.setItem(`journalEntry-${currentExerciseId}`, journalEntry.value);
+                
+                // Show feedback message
+                saveFeedback.style.opacity = 1;
+                setTimeout(() => {
+                    saveFeedback.style.opacity = 0;
+                }, 2000); // Fade out after 2 seconds
+            }
+        });
+
+        // --- Mobile Menu Toggle Logic ---
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+        
+        // Close sidebar if user clicks outside of it on mobile
+        mainContent.addEventListener('click', () => {
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // --- Initial Application Setup ---
+        populateNavMenu();
+    });
+    </script>
+</body>
+</html>
