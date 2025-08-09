@@ -61,7 +61,9 @@
         .data-management-buttons { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; }
         .io-button { background: #f7f3ed; border: 1px solid var(--border-color); color: var(--accent-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background-color 0.2s; flex-basis: 45%; text-align: center;}
         .io-button:hover { background-color: #f0ebe4; }
-        #history-button { flex-basis: 95%; }
+        #home-button { flex-basis: 95%; background-color: var(--accent-color); color: white; }
+        #home-button:hover { background-color: #6d5635; }
+
 
         #navigation-menu { flex-grow: 1; }
 
@@ -102,9 +104,14 @@
 
         .exercise-scripture { font-family: 'Lora', serif; font-style: italic; font-size: 1.1rem; padding: 15px; background-color: #f7f3ed; border-left: 4px solid var(--accent-color); border-radius: 4px; margin: 20px 0; }
         .exercise-scripture strong { font-weight: 600; color: var(--heading-color); }
-        .journal-area label { display: block; font-family: 'Lora', serif; font-weight: 600; font-size: 1.2rem; margin-bottom: 10px; }
-        #entry-timestamp { font-size: 0.85rem; color: #888; margin-bottom: 10px; font-style: italic; }
-        .journal-textarea { width: 100%; min-height: 300px; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; font-family: 'Source Sans 3', sans-serif; font-size: 1rem; line-height: 1.7; resize: vertical; box-shadow: inset 0 1px 4px var(--shadow-color); }
+        
+        #entry-history-list { margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .historical-entry { background-color: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px var(--shadow-color); }
+        .entry-meta { font-size: 0.9rem; font-weight: 600; color: var(--accent-color); margin-bottom: 10px; }
+        .entry-text { white-space: pre-wrap; /* Preserves line breaks */ }
+
+        .new-entry-area label { display: block; font-family: 'Lora', serif; font-weight: 600; font-size: 1.2rem; margin-bottom: 10px; margin-top: 30px; }
+        .journal-textarea { width: 100%; min-height: 150px; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; font-family: 'Source Sans 3', sans-serif; font-size: 1rem; line-height: 1.7; resize: vertical; box-shadow: inset 0 1px 4px var(--shadow-color); }
         .journal-textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(138, 109, 70, 0.2); }
         .save-button { display: inline-block; background-color: var(--accent-color); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s; margin-top: 20px; }
         .save-button:hover { background-color: #6d5635; }
@@ -153,6 +160,7 @@
             </div>
             
             <div class="data-management-buttons">
+                <button id="home-button" class="io-button">Home</button>
                 <button id="export-button" class="io-button">Export</button>
                 <button id="import-button" class="io-button">Import</button>
                 <button id="history-button" class="io-button">View History</button>
@@ -187,13 +195,17 @@
                     <p id="exercise-explanation"></p>
                     <strong id="exercise-reference"></strong>
                 </div>
-                <div class="journal-area">
-                    <label for="journal-entry">My Thoughts, Confessions, and Prayers</label>
-                    <div id="entry-timestamp"></div>
-                    <textarea id="journal-entry" class="journal-textarea" placeholder="Write your reflections here..."></textarea>
+
+                <div id="entry-history-list">
+                    <!-- Historical entries will be populated here -->
                 </div>
-                <button class="save-button" id="save-button">Update Entry</button>
-                <span id="save-feedback">Updated!</span>
+
+                <div class="new-entry-area">
+                    <label for="journal-entry">Add a New Entry</label>
+                    <textarea id="journal-entry" class="journal-textarea" placeholder="Write your new reflections here..."></textarea>
+                    <button class="save-button" id="save-button">Add Entry</button>
+                    <span id="save-feedback">Entry Added!</span>
+                </div>
             </div>
         </main>
     </div>
@@ -247,7 +259,7 @@
         { id: 9, category: 'Prayer & Supplication', title: 'Prayer Walking', explanation: 'Walk through your community while praying for its people.', reference: '2 Chronicles 7:14' },
         { id: 10, category: 'Prayer & Supplication', title: 'Ceaseless Prayer', explanation: 'Maintain a constant attitude of prayer throughout your day.', reference: '1 Thessalonians 5:17' },
         { id: 11, category: 'Prayer & Supplication', title: 'Pray for Enemies', explanation: 'Ask God to bless and save those who persecute you.', reference: 'Matthew 5:44' },
-        { id: 12, category: 'Prayer & Supplication', title: 'Prayer Journaling', explanation: 'Write down your prayers and God\'s answers to remember faithfulness.', reference: 'Habakkuk 2:2' },
+        { id: 12, category: 'Prayer & Supplication', 'title': 'Prayer Journaling', 'explanation': 'Write down your prayers and God\'s answers to remember faithfulness.', 'reference': 'Habakkuk 2:2' },
         { id: 13, category: 'Prayer & Supplication', title: 'Family Altar', explanation: 'Lead your family in a dedicated time of prayer.', reference: 'Genesis 35:2-3' },
         { id: 14, category: 'Prayer & Supplication', title: 'Fasting & Prayer', explanation: 'Abstain from food for a time to focus on God.', reference: 'Matthew 17:21' },
         { id: 15, category: 'Prayer & Supplication', title: 'Praying for Labourers', explanation: 'Ask God to send more workers into His harvest.', reference: 'Matthew 9:38' },
@@ -356,13 +368,14 @@
         const favoriteStar = getEl('favorite-star');
         const exerciseExplanation = getEl('exercise-explanation');
         const exerciseReference = getEl('exercise-reference');
-        const entryTimestamp = getEl('entry-timestamp');
+        const entryHistoryList = getEl('entry-history-list');
         const journalEntry = getEl('journal-entry');
         const saveButton = getEl('save-button');
         const saveFeedback = getEl('save-feedback');
         const mobileMenuToggle = getEl('mobile-menu-toggle');
         const sidebar = getEl('sidebar');
         const mainContent = getEl('main-content');
+        const homeButton = getEl('home-button');
         const exportButton = getEl('export-button');
         const importButton = getEl('import-button');
         const importFileInput = getEl('import-file-input');
@@ -484,6 +497,37 @@
             }
         }
 
+        function showWelcomeScreen() {
+            currentExerciseId = null;
+            exerciseView.style.display = 'none';
+            welcomeView.style.display = 'block';
+            document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
+            setupWelcome();
+        }
+
+        function renderEntryHistory(exerciseId) {
+            const entriesJSON = localStorage.getItem(`journalEntry-${exerciseId}`);
+            const entries = entriesJSON ? JSON.parse(entriesJSON) : [];
+            entryHistoryList.innerHTML = '';
+            // Display newest entries first
+            entries.slice().reverse().forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'historical-entry';
+                
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'entry-meta';
+                metaDiv.textContent = new Date(entry.timestamp).toLocaleString();
+                
+                const textDiv = document.createElement('div');
+                textDiv.className = 'entry-text';
+                textDiv.textContent = entry.text;
+
+                entryDiv.appendChild(metaDiv);
+                entryDiv.appendChild(textDiv);
+                entryHistoryList.appendChild(entryDiv);
+            });
+        }
+
         function showExercise(id) {
             currentExerciseId = parseInt(id);
             const exercise = spiritualExercises.find(ex => ex.id === currentExerciseId);
@@ -493,15 +537,8 @@
                 exerciseExplanation.textContent = exercise.explanation;
                 exerciseReference.textContent = exercise.reference;
                 
-                const savedEntryJSON = localStorage.getItem(`journalEntry-${currentExerciseId}`);
-                if (savedEntryJSON) {
-                    const savedEntry = JSON.parse(savedEntryJSON);
-                    journalEntry.value = savedEntry.text || '';
-                    entryTimestamp.textContent = `Last updated: ${new Date(savedEntry.timestamp).toLocaleString()}`;
-                } else {
-                    journalEntry.value = '';
-                    entryTimestamp.textContent = '';
-                }
+                renderEntryHistory(currentExerciseId);
+                journalEntry.value = ''; // Clear textarea for new entry
 
                 updateFavoriteStar();
                 welcomeView.style.display = 'none';
@@ -520,13 +557,20 @@
 
         // --- Save Entry Logic (with Timestamp) ---
         function saveEntry() {
-            if (currentExerciseId !== null) {
-                const entry = {
-                    text: journalEntry.value,
+            if (currentExerciseId !== null && journalEntry.value.trim() !== '') {
+                const entriesJSON = localStorage.getItem(`journalEntry-${currentExerciseId}`);
+                const entries = entriesJSON ? JSON.parse(entriesJSON) : [];
+                
+                const newEntry = {
+                    text: journalEntry.value.trim(),
                     timestamp: new Date().toISOString()
                 };
-                localStorage.setItem(`journalEntry-${currentExerciseId}`, JSON.stringify(entry));
-                entryTimestamp.textContent = `Last updated: ${new Date(entry.timestamp).toLocaleString()}`;
+                entries.push(newEntry);
+                
+                localStorage.setItem(`journalEntry-${currentExerciseId}`, JSON.stringify(entries));
+                
+                renderEntryHistory(currentExerciseId); // Re-render the history list
+                journalEntry.value = ''; // Clear the textarea
                 
                 saveFeedback.style.opacity = 1;
                 setTimeout(() => { saveFeedback.style.opacity = 0; }, 2000);
@@ -539,15 +583,20 @@
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith('journalEntry-')) {
-                    const entry = JSON.parse(localStorage.getItem(key));
                     const exerciseId = parseInt(key.split('-')[1]);
                     const exercise = spiritualExercises.find(ex => ex.id === exerciseId);
-                    if (entry.text && exercise) {
-                        historyReportData.push({
-                            date: new Date(entry.timestamp),
-                            category: exercise.category,
-                            exercise: exercise.title,
-                            text: entry.text
+                    const entries = JSON.parse(localStorage.getItem(key));
+
+                    if (exercise && Array.isArray(entries)) {
+                        entries.forEach(entry => {
+                             if(entry.text) {
+                                historyReportData.push({
+                                    date: new Date(entry.timestamp),
+                                    category: exercise.category,
+                                    exercise: exercise.title,
+                                    text: entry.text
+                                });
+                            }
                         });
                     }
                 }
@@ -604,14 +653,13 @@
                 filteredData = filteredData.filter(item => item.date >= startDate);
             }
             if (endDate) {
-                // Add 1 day to end date to make it inclusive
                 const inclusiveEndDate = new Date(endDate);
                 inclusiveEndDate.setDate(inclusiveEndDate.getDate() + 1);
                 filteredData = filteredData.filter(item => item.date < inclusiveEndDate);
             }
             
-            historyReportData = filteredData; // Update the main data for sorting
-            sortHistory(currentSort.key); // Re-sort with current settings
+            historyReportData = filteredData;
+            sortHistory(currentSort.key);
         }
 
         // --- Export and Import Logic ---
@@ -681,6 +729,7 @@
             if (e.target.tagName === 'A') { e.preventDefault(); showExercise(e.target.dataset.id); }
         });
 
+        homeButton.addEventListener('click', showWelcomeScreen);
         favoriteStar.addEventListener('click', toggleFavorite);
         saveButton.addEventListener('click', saveEntry);
         
