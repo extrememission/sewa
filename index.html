@@ -63,6 +63,17 @@
         .io-button:hover { background-color: #f0ebe4; }
         #home-button, #favorites-button { background-color: var(--accent-color); color: white; }
         #home-button:hover, #favorites-button:hover { background-color: #6d5635; }
+        #help-button {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        #help-button:hover { color: #6d5635; }
 
 
         #navigation-menu { flex-grow: 1; }
@@ -87,6 +98,20 @@
         .welcome-view, .favorites-view { text-align: center; padding-top: 5vh; }
         .welcome-view h1, .favorites-view h1 { font-size: 2.5rem; }
         .welcome-view p { font-size: 1.2rem; color: #555; }
+        
+        #welcome-header .cursor {
+            display: inline-block;
+            background-color: var(--heading-color);
+            margin-left: 0.1rem;
+            width: 3px;
+            animation: blink 1s infinite;
+        }
+        #animated-text-wrapper.deleting {
+            background-color: #ffe8c8;
+            border-radius: 4px;
+        }
+        @keyframes blink { 50% { background-color: transparent; } }
+
         #name-prompt { text-align: center; }
         #name-prompt p { margin-bottom: 15px; }
         #name-prompt input { 
@@ -128,21 +153,23 @@
         .save-button:active { transform: scale(0.98); }
         #save-feedback { display: inline-block; margin-left: 15px; color: green; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
 
-        /* History Modal Styles */
+        /* Modal Styles (History & Help) */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
         .modal-header h2 { margin: 0; }
         .modal-close { font-size: 2rem; font-weight: bold; cursor: pointer; border: none; background: none; }
+        .modal-body { overflow-y: auto; }
         .modal-filters { display: flex; gap: 20px; margin-bottom: 20px; align-items: center; }
         .modal-filters label { font-weight: 600; }
         .modal-filters input { padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; }
-        .modal-body { overflow-y: auto; }
         .history-table { width: 100%; border-collapse: collapse; }
         .history-table th, .history-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .history-table th { cursor: pointer; position: relative; }
         .history-table th:hover { background-color: #f7f3ed; }
         .history-table th .sort-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
+        .faq-item { margin-bottom: 20px; }
+        .faq-item h4 { margin-bottom: 5px; color: var(--accent-color); }
 
         /* Mobile Responsiveness */
         .mobile-menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background-color: var(--accent-color); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
@@ -175,6 +202,7 @@
                 <button id="export-button" class="io-button">Export</button>
                 <button id="import-button" class="io-button">Import</button>
                 <button id="history-button" class="io-button" style="flex-basis: 95%;">View History</button>
+                <button id="help-button" title="Help">&#9432;</button>
                 <input type="file" id="import-file-input" style="display: none;" accept=".json">
             </div>
 
@@ -183,13 +211,13 @@
 
         <main class="main-content" id="main-content">
             <div class="welcome-view" id="welcome-view">
-                <h1 id="welcome-header">Welcome, Extreme Mission Christian.</h1>
-                <div id="name-prompt">
+                <h1 id="welcome-header">Welcome, <span id="animated-text-wrapper"><span id="animated-text"></span></span><span class="cursor"></span></h1>
+                <div id="name-prompt" style="display: none;">
                     <p>To personalize your app, enter a nickname or inspiring appellation.</p>
                     <input type="text" id="name-input" placeholder="e.g., Jim, Jane, Ambassador for Christ">
                     <button id="name-submit" class="save-button">Begin</button>
                 </div>
-                <p id="welcome-message">Select an exercise from the menu to begin.</p>
+                <p id="welcome-message" style="display: none;">Select an exercise from the menu to begin.</p>
             </div>
 
             <div class="favorites-view" id="favorites-view" style="display: none;">
@@ -228,7 +256,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Journal History</h2>
-                <button class="modal-close" id="modal-close-button">&times;</button>
+                <button class="modal-close" id="history-modal-close-button">&times;</button>
             </div>
             <div class="modal-filters">
                 <div>
@@ -254,6 +282,42 @@
                         <!-- Rows will be inserted here by JavaScript -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help/FAQ Modal -->
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>How to Use This Journal</h2>
+                <button class="modal-close" id="help-modal-close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="faq-item">
+                    <h4>Personalizing Your Journal</h4>
+                    <p>The first time you visit, you'll be asked for a name or an inspiring appellation. This is saved on your device to personalize your welcome message. It is also saved in your export file.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Navigating Exercises</h4>
+                    <p>Use the accordion menu on the left to browse exercises by category. Click on a category to expand it, then click on an exercise to view its details.</p>
+                </div>
+                 <div class="faq-item">
+                    <h4>Adding a Journal Entry</h4>
+                    <p>On any exercise page, type your reflections in the "Add a New Entry" text box and click the "Add Entry" button. Your entry will be saved with the current date and time and will appear above the text box. You can add multiple entries for each exercise.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Favoriting Exercises</h4>
+                    <p>Click the star icon (&#9733;) at the top of an exercise page to mark it as a favorite. Click the "Favorites" button in the sidebar to view a list of all your favorite exercises for quick access.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Viewing Your History</h4>
+                    <p>Click the "View History" button to see a complete list of all your journal entries. You can filter this list by date and sort it by date, category, or exercise title.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Exporting and Importing Your Journal</h4>
+                    <p>Your journal is saved in your browser. To back it up or move it to another device, use the "Export" button. This will save a `.json` file to your computer. On a new device, use the "Import" button to select that file and restore your journal. <strong>Warning:</strong> Importing will overwrite any existing data in the journal.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -370,6 +434,8 @@
         const navigationMenu = getEl('navigation-menu');
         const welcomeView = getEl('welcome-view');
         const welcomeHeader = getEl('welcome-header');
+        const animatedTextWrapper = getEl('animated-text-wrapper');
+        const animatedText = getEl('animated-text');
         const namePrompt = getEl('name-prompt');
         const nameInput = getEl('name-input');
         const nameSubmit = getEl('name-submit');
@@ -394,8 +460,11 @@
         const importButton = getEl('import-button');
         const importFileInput = getEl('import-file-input');
         const historyButton = getEl('history-button');
+        const helpButton = getEl('help-button');
         const historyModal = getEl('history-modal');
-        const modalCloseButton = getEl('modal-close-button');
+        const helpModal = getEl('help-modal');
+        const historyModalCloseButton = getEl('history-modal-close-button');
+        const helpModalCloseButton = getEl('help-modal-close-button');
         const historyTableBody = getEl('history-table-body');
         const startDateInput = getEl('start-date');
         const endDateInput = getEl('end-date');
@@ -405,26 +474,72 @@
         let favorites = [];
         let historyReportData = [];
         let currentSort = { key: 'date', order: 'desc' };
+        let animationRunning = false;
 
         // --- Data Handling ---
         const getFavorites = () => JSON.parse(localStorage.getItem('journalFavorites')) || [];
         const saveFavorites = () => localStorage.setItem('journalFavorites', JSON.stringify(favorites));
 
+        // --- Typing Animation ---
+        const appellations = [
+            "Extreme Mission Christian",
+            "Ambassador for Christ",
+            "Disciple of the Most High God",
+            "Follower of Jesus",
+            "One who is more than a conqueror"
+        ];
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function typeAnimation() {
+            if (!animationRunning) return;
+            const currentText = appellations[textIndex];
+            const typeSpeed = 80; // Consistent speed for typing and deleting
+
+            if (isDeleting) {
+                animatedText.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                animatedText.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            if (!isDeleting && charIndex === currentText.length) {
+                setTimeout(() => {
+                    isDeleting = true;
+                    animatedTextWrapper.classList.add('deleting');
+                }, 2000); // Pause at end
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                animatedTextWrapper.classList.remove('deleting');
+                textIndex = (textIndex + 1) % appellations.length;
+            }
+            
+            setTimeout(typeAnimation, typeSpeed);
+        }
+
+        function stopAnimation() {
+            animationRunning = false;
+            welcomeHeader.innerHTML = 'Welcome, Extreme Mission Christian.';
+        }
+
         // --- Name Personalization ---
         function setupWelcome() {
             const savedName = localStorage.getItem('userName');
             if (savedName) {
-                welcomeHeader.textContent = `Welcome, ${savedName}.`;
+                welcomeHeader.innerHTML = `Welcome, ${savedName}.`;
                 namePrompt.style.display = 'none';
                 welcomeMessage.style.display = 'block';
             } else {
-                welcomeHeader.textContent = 'Welcome, Extreme Mission Christian.';
+                animationRunning = true;
+                typeAnimation();
                 namePrompt.style.display = 'block';
-                welcomeMessage.style.display = 'none';
             }
         }
 
         function saveName() {
+            animationRunning = false;
             const userName = nameInput.value.trim();
             if (userName) {
                 localStorage.setItem('userName', userName);
@@ -741,6 +856,7 @@
         // --- Event Listeners ---
         nameSubmit.addEventListener('click', saveName);
         nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveName(); });
+        nameInput.addEventListener('focus', stopAnimation, { once: true });
         
         navigationMenu.addEventListener('click', (e) => {
             if (e.target.tagName === 'H3') e.target.parentElement.classList.toggle('open');
@@ -760,7 +876,13 @@
             filterHistory();
             historyModal.style.display = 'flex';
         });
-        modalCloseButton.addEventListener('click', () => historyModal.style.display = 'none');
+        helpButton.addEventListener('click', () => {
+            helpModal.style.display = 'flex';
+        });
+
+        historyModalCloseButton.addEventListener('click', () => historyModal.style.display = 'none');
+        helpModalCloseButton.addEventListener('click', () => helpModal.style.display = 'none');
+        
         filterButton.addEventListener('click', filterHistory);
         document.querySelectorAll('.history-table th').forEach(th => th.addEventListener('click', () => sortHistory(th.dataset.sort)));
 
