@@ -153,7 +153,7 @@
         .save-button:active { transform: scale(0.98); }
         #save-feedback { display: inline-block; margin-left: 15px; color: green; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
 
-        /* Modal Styles (History & Help) */
+        /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
@@ -170,6 +170,8 @@
         .history-table th .sort-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
         .faq-item { margin-bottom: 20px; }
         .faq-item h4 { margin-bottom: 5px; color: var(--accent-color); }
+        #import-choice-modal .modal-body { text-align: center; }
+        #import-choice-modal button { margin: 10px; }
 
         /* Mobile Responsiveness */
         .mobile-menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background-color: var(--accent-color); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
@@ -251,7 +253,7 @@
         </main>
     </div>
 
-    <!-- History Report Modal -->
+    <!-- Modals -->
     <div class="modal-overlay" id="history-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -278,15 +280,12 @@
                             <th data-sort="exercise">Exercise <span class="sort-indicator"></span></th>
                         </tr>
                     </thead>
-                    <tbody id="history-table-body">
-                        <!-- Rows will be inserted here by JavaScript -->
-                    </tbody>
+                    <tbody id="history-table-body"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Help/FAQ Modal -->
     <div class="modal-overlay" id="help-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -316,8 +315,25 @@
                 </div>
                 <div class="faq-item">
                     <h4>Exporting and Importing Your Journal</h4>
-                    <p>Your journal is saved in your browser. To back it up or move it to another device, use the "Export" button. This will save a `.json` file to your computer. On a new device, use the "Import" button to select that file and restore your journal. <strong>Warning:</strong> Importing will overwrite any existing data in the journal.</p>
+                    <p>Your journal is saved in your browser. To back it up or move it to another device, use the "Export" button. This will save a `.json` file to your computer. On a new device, use the "Import" button to select that file and restore your journal.</p>
                 </div>
+                 <div class="faq-item">
+                    <h4>Merge vs. Replace</h4>
+                    <p>When you import a file, you will be given two options. <strong>Merge</strong> will intelligently combine the journal entries and favorites from your imported file with the data already in your browser. <strong>Replace</strong> will completely erase your current journal and replace it with the data from the imported file.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="import-choice-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Option</h2>
+            </div>
+            <div class="modal-body">
+                <p>Would you like to merge the imported journal with your existing one, or replace it completely?</p>
+                <button id="merge-button" class="save-button">Merge</button>
+                <button id="replace-button" class="io-button">Replace</button>
             </div>
         </div>
     </div>
@@ -463,8 +479,11 @@
         const helpButton = getEl('help-button');
         const historyModal = getEl('history-modal');
         const helpModal = getEl('help-modal');
+        const importChoiceModal = getEl('import-choice-modal');
         const historyModalCloseButton = getEl('history-modal-close-button');
         const helpModalCloseButton = getEl('help-modal-close-button');
+        const mergeButton = getEl('merge-button');
+        const replaceButton = getEl('replace-button');
         const historyTableBody = getEl('history-table-body');
         const startDateInput = getEl('start-date');
         const endDateInput = getEl('end-date');
@@ -475,6 +494,7 @@
         let historyReportData = [];
         let currentSort = { key: 'date', order: 'desc' };
         let animationRunning = false;
+        let importedData = null;
 
         // --- Data Handling ---
         const getFavorites = () => JSON.parse(localStorage.getItem('journalFavorites')) || [];
@@ -822,26 +842,15 @@
             URL.revokeObjectURL(url);
         }
 
-        function importJournal(event) {
+        function handleImportFile(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    if (data && (data.journalEntries || data.userName || data.journalFavorites)) {
-                        if (confirm("This will overwrite your current journal. Are you sure you want to proceed?")) {
-                            localStorage.clear();
-                            if(data.userName) localStorage.setItem('userName', data.userName);
-                            if(data.journalFavorites) localStorage.setItem('journalFavorites', JSON.stringify(data.journalFavorites));
-                            if(data.journalEntries) {
-                                for (const key in data.journalEntries) {
-                                    localStorage.setItem(key, data.journalEntries[key]);
-                                }
-                            }
-                            alert('Journal imported successfully! The page will now reload.');
-                            location.reload();
-                        }
+                    importedData = JSON.parse(e.target.result);
+                    if (importedData && (importedData.journalEntries || importedData.userName || importedData.journalFavorites)) {
+                        importChoiceModal.style.display = 'flex';
                     } else {
                         alert('Error: Invalid journal file format.');
                     }
@@ -851,6 +860,53 @@
             };
             reader.readAsText(file);
             event.target.value = '';
+        }
+
+        function replaceData(data) {
+            localStorage.clear();
+            if(data.userName) localStorage.setItem('userName', data.userName);
+            if(data.journalFavorites) localStorage.setItem('journalFavorites', JSON.stringify(data.journalFavorites));
+            if(data.journalEntries) {
+                for (const key in data.journalEntries) {
+                    localStorage.setItem(key, data.journalEntries[key]);
+                }
+            }
+            alert('Journal replaced successfully! The page will now reload.');
+            location.reload();
+        }
+
+        function mergeData(data) {
+            // Merge/overwrite name
+            if(data.userName) localStorage.setItem('userName', data.userName);
+
+            // Merge favorites
+            const localFavorites = getFavorites();
+            const importedFavorites = data.journalFavorites || [];
+            const mergedFavorites = [...new Set([...localFavorites, ...importedFavorites])];
+            localStorage.setItem('journalFavorites', JSON.stringify(mergedFavorites));
+
+            // Merge entries
+            if (data.journalEntries) {
+                for (const key in data.journalEntries) {
+                    const localEntries = JSON.parse(localStorage.getItem(key)) || [];
+                    const importedEntries = JSON.parse(data.journalEntries[key]) || [];
+                    const allEntries = [...localEntries, ...importedEntries];
+                    
+                    // Remove duplicates based on timestamp and text
+                    const uniqueEntries = allEntries.filter((entry, index, self) =>
+                        index === self.findIndex((e) => (
+                            e.timestamp === entry.timestamp && e.text === entry.text
+                        ))
+                    );
+                    
+                    // Sort by date to keep them in order
+                    uniqueEntries.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                    localStorage.setItem(key, JSON.stringify(uniqueEntries));
+                }
+            }
+            alert('Journal merged successfully! The page will now reload.');
+            location.reload();
         }
 
         // --- Event Listeners ---
@@ -888,7 +944,16 @@
 
         exportButton.addEventListener('click', exportJournal);
         importButton.addEventListener('click', () => importFileInput.click());
-        importFileInput.addEventListener('change', importJournal);
+        importFileInput.addEventListener('change', handleImportFile);
+
+        mergeButton.addEventListener('click', () => {
+            mergeData(importedData);
+            importChoiceModal.style.display = 'none';
+        });
+        replaceButton.addEventListener('click', () => {
+            replaceData(importedData);
+            importChoiceModal.style.display = 'none';
+        });
 
         mobileMenuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
         mainContent.addEventListener('click', () => { if (sidebar.classList.contains('open')) sidebar.classList.remove('open'); });
