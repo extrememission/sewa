@@ -61,8 +61,8 @@
         .data-management-buttons { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; }
         .io-button { background: #f7f3ed; border: 1px solid var(--border-color); color: var(--accent-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background-color 0.2s; flex-basis: 45%; text-align: center;}
         .io-button:hover { background-color: #f0ebe4; }
-        #home-button { flex-basis: 95%; background-color: var(--accent-color); color: white; }
-        #home-button:hover { background-color: #6d5635; }
+        #home-button, #favorites-button { background-color: var(--accent-color); color: white; }
+        #home-button:hover, #favorites-button:hover { background-color: #6d5635; }
 
 
         #navigation-menu { flex-grow: 1; }
@@ -81,16 +81,26 @@
         
         /* --- Main Content Area --- */
         .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
-        .welcome-view, .exercise-view { max-width: 800px; margin: 0 auto; }
+        .welcome-view, .exercise-view, .favorites-view { max-width: 800px; margin: 0 auto; }
         
-        /* Welcome View Styles */
-        .welcome-view { text-align: center; padding-top: 5vh; }
-        .welcome-view h1 { font-size: 2.5rem; }
+        /* Welcome & Favorites View Styles */
+        .welcome-view, .favorites-view { text-align: center; padding-top: 5vh; }
+        .welcome-view h1, .favorites-view h1 { font-size: 2.5rem; }
         .welcome-view p { font-size: 1.2rem; color: #555; }
-        #name-prompt input { font-size: 1.1rem; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); margin-right: 10px; width: 250px; }
+        #name-prompt { text-align: center; }
+        #name-prompt p { margin-bottom: 15px; }
+        #name-prompt input { 
+            display: block;
+            margin: 0 auto 15px auto;
+            font-size: 1.1rem; 
+            padding: 10px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-color); 
+            width: 300px; 
+            text-align: center; 
+        }
         #name-prompt button { font-size: 1.1rem; padding: 10px 20px; }
         #favorites-section { margin-top: 40px; text-align: left; }
-        #favorites-section h4 { text-align: center; }
         #favorites-list { list-style: none; padding: 0; }
         #favorites-list li { background: white; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 2px 5px var(--shadow-color); }
         #favorites-list a { display: block; padding: 15px; text-decoration: none; color: var(--heading-color); font-weight: 600; transition: background-color 0.2s; border-radius: 6px; }
@@ -161,9 +171,10 @@
             
             <div class="data-management-buttons">
                 <button id="home-button" class="io-button">Home</button>
+                <button id="favorites-button" class="io-button">Favorites</button>
                 <button id="export-button" class="io-button">Export</button>
                 <button id="import-button" class="io-button">Import</button>
-                <button id="history-button" class="io-button">View History</button>
+                <button id="history-button" class="io-button" style="flex-basis: 95%;">View History</button>
                 <input type="file" id="import-file-input" style="display: none;" accept=".json">
             </div>
 
@@ -172,16 +183,18 @@
 
         <main class="main-content" id="main-content">
             <div class="welcome-view" id="welcome-view">
-                <h1 id="welcome-header">Welcome, Child of God.</h1>
+                <h1 id="welcome-header">Welcome, Extreme Mission Christian.</h1>
                 <div id="name-prompt">
-                    <p>What is your name?</p>
-                    <input type="text" id="name-input" placeholder="Enter your name">
+                    <p>To personalize your app, enter a nickname or inspiring appellation.</p>
+                    <input type="text" id="name-input" placeholder="e.g., Jim, Jane, Ambassador for Christ">
                     <button id="name-submit" class="save-button">Begin</button>
                 </div>
                 <p id="welcome-message">Select an exercise from the menu to begin.</p>
-                
-                <div id="favorites-section" style="display: none;">
-                    <h4>Your Favorite Exercises</h4>
+            </div>
+
+            <div class="favorites-view" id="favorites-view" style="display: none;">
+                <h1>Favorite Exercises</h1>
+                <div id="favorites-section">
                     <ul id="favorites-list"></ul>
                 </div>
             </div>
@@ -361,7 +374,7 @@
         const nameInput = getEl('name-input');
         const nameSubmit = getEl('name-submit');
         const welcomeMessage = getEl('welcome-message');
-        const favoritesSection = getEl('favorites-section');
+        const favoritesView = getEl('favorites-view');
         const favoritesList = getEl('favorites-list');
         const exerciseView = getEl('exercise-view');
         const exerciseTitle = getEl('exercise-title');
@@ -376,6 +389,7 @@
         const sidebar = getEl('sidebar');
         const mainContent = getEl('main-content');
         const homeButton = getEl('home-button');
+        const favoritesButton = getEl('favorites-button');
         const exportButton = getEl('export-button');
         const importButton = getEl('import-button');
         const importFileInput = getEl('import-file-input');
@@ -404,11 +418,10 @@
                 namePrompt.style.display = 'none';
                 welcomeMessage.style.display = 'block';
             } else {
-                welcomeHeader.textContent = 'Welcome, Child of God.';
+                welcomeHeader.textContent = 'Welcome, Extreme Mission Christian.';
                 namePrompt.style.display = 'block';
                 welcomeMessage.style.display = 'none';
             }
-            displayFavorites();
         }
 
         function saveName() {
@@ -424,7 +437,6 @@
             favorites = getFavorites();
             favoritesList.innerHTML = '';
             if (favorites.length > 0) {
-                favoritesSection.style.display = 'block';
                 favorites.forEach(id => {
                     const exercise = spiritualExercises.find(ex => ex.id === id);
                     if (exercise) {
@@ -438,7 +450,7 @@
                     }
                 });
             } else {
-                favoritesSection.style.display = 'none';
+                favoritesList.innerHTML = '<li><p>You haven\'t marked any exercises as favorites yet. Click the star icon on an exercise to add it here.</p></li>';
             }
         }
 
@@ -452,7 +464,6 @@
             }
             saveFavorites();
             updateFavoriteStar();
-            displayFavorites();
         }
 
         function updateFavoriteStar() {
@@ -500,9 +511,19 @@
         function showWelcomeScreen() {
             currentExerciseId = null;
             exerciseView.style.display = 'none';
+            favoritesView.style.display = 'none';
             welcomeView.style.display = 'block';
             document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
             setupWelcome();
+        }
+
+        function showFavoritesScreen() {
+            currentExerciseId = null;
+            exerciseView.style.display = 'none';
+            welcomeView.style.display = 'none';
+            favoritesView.style.display = 'block';
+            document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
+            displayFavorites();
         }
 
         function renderEntryHistory(exerciseId) {
@@ -542,6 +563,7 @@
 
                 updateFavoriteStar();
                 welcomeView.style.display = 'none';
+                favoritesView.style.display = 'none';
                 exerciseView.style.display = 'block';
 
                 document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
@@ -730,6 +752,7 @@
         });
 
         homeButton.addEventListener('click', showWelcomeScreen);
+        favoritesButton.addEventListener('click', showFavoritesScreen);
         favoriteStar.addEventListener('click', toggleFavorite);
         saveButton.addEventListener('click', saveEntry);
         
