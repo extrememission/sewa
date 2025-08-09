@@ -49,44 +49,79 @@
             overflow-y: auto;
             box-shadow: 2px 0 15px var(--shadow-color);
             transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 15px;
         }
-
-        .sidebar-header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
         
-        .sidebar-header p {
-            font-size: 0.9rem;
-            color: #777;
-            margin: 5px 0 0;
+        .sidebar-header h2 { margin: 0; font-size: 1.5rem; }
+        .sidebar-header p { font-size: 0.9rem; color: #777; margin: 5px 0 0; }
+
+        .data-management-buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
         }
 
+        .io-button {
+            background: #f7f3ed;
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .io-button:hover { background-color: #f0ebe4; }
+
+        #navigation-menu { flex-grow: 1; }
+
+        /* Accordion Styles */
         .category-list h3 {
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            margin-bottom: 0;
             font-size: 1.1rem;
             color: var(--accent-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            position: relative;
         }
-
+        .category-list h3::after {
+            content: '+';
+            position: absolute;
+            right: 15px;
+            font-weight: bold;
+        }
+        .category-list.open > h3::after { content: '−'; }
+        .category-list.open > h3 { background-color: #f0ebe4; }
+        
         .exercise-list {
             list-style: none;
             padding: 0;
             margin: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .category-list.open .exercise-list {
+            max-height: 1000px; /* Large enough to not clip content */
         }
 
         .exercise-list-item a {
             display: block;
-            padding: 10px 15px;
+            padding: 10px 15px 10px 25px;
             text-decoration: none;
             color: var(--text-color);
             border-radius: 6px;
@@ -94,16 +129,8 @@
             transition: background-color 0.2s, color 0.2s;
             font-weight: 500;
         }
-
-        .exercise-list-item a:hover {
-            background-color: #f0ebe4;
-        }
-
-        .exercise-list-item a.active {
-            background-color: var(--accent-color);
-            color: white;
-            font-weight: 700;
-        }
+        .exercise-list-item a:hover { background-color: #f0ebe4; }
+        .exercise-list-item a.active { background-color: var(--accent-color); color: white; font-weight: 700; }
         
         /* --- Main Content Area --- */
         .main-content {
@@ -112,30 +139,25 @@
             overflow-y: auto;
         }
 
-        .welcome-view, .exercise-view {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        .welcome-view, .exercise-view { max-width: 800px; margin: 0 auto; }
         
-        .welcome-view {
-            text-align: center;
-            padding-top: 10vh;
+        .welcome-view { text-align: center; padding-top: 10vh; }
+        .welcome-view h1 { font-size: 2.5rem; }
+        .welcome-view p { font-size: 1.2rem; color: #555; }
+        #name-prompt input {
+            font-size: 1.1rem;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-right: 10px;
+            width: 250px;
+        }
+        #name-prompt button {
+            font-size: 1.1rem;
+            padding: 10px 20px;
         }
 
-        .welcome-view h1 {
-            font-size: 2.5rem;
-        }
-
-        .welcome-view p {
-            font-size: 1.2rem;
-            color: #555;
-        }
-
-        .exercise-view h1 {
-            margin-top: 0;
-            font-size: 2.2rem;
-        }
-
+        .exercise-view h1 { margin-top: 0; font-size: 2.2rem; }
         .exercise-scripture {
             font-family: 'Lora', serif;
             font-style: italic;
@@ -146,20 +168,8 @@
             border-radius: 4px;
             margin: 20px 0;
         }
-        
-        .exercise-scripture strong {
-            font-weight: 600;
-            color: var(--heading-color);
-        }
-
-        .journal-area label {
-            display: block;
-            font-family: 'Lora', serif;
-            font-weight: 600;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-
+        .exercise-scripture strong { font-weight: 600; color: var(--heading-color); }
+        .journal-area label { display: block; font-family: 'Lora', serif; font-weight: 600; font-size: 1.2rem; margin-bottom: 10px; }
         .journal-textarea {
             width: 100%;
             min-height: 300px;
@@ -172,13 +182,7 @@
             resize: vertical;
             box-shadow: inset 0 1px 4px var(--shadow-color);
         }
-        
-        .journal-textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(138, 109, 70, 0.2);
-        }
-
+        .journal-textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(138, 109, 70, 0.2); }
         .save-button {
             display: inline-block;
             background-color: var(--accent-color);
@@ -192,74 +196,19 @@
             transition: background-color 0.2s, transform 0.1s;
             margin-top: 20px;
         }
-
-        .save-button:hover {
-            background-color: #6d5635;
-        }
-        
-        .save-button:active {
-            transform: scale(0.98);
-        }
-
-        #save-feedback {
-            display: inline-block;
-            margin-left: 15px;
-            color: green;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
+        .save-button:hover { background-color: #6d5635; }
+        .save-button:active { transform: scale(0.98); }
+        #save-feedback { display: inline-block; margin-left: 15px; color: green; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
 
         /* --- Mobile Responsiveness --- */
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1001;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
+        .mobile-menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background-color: var(--accent-color); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         @media (max-width: 768px) {
-            .app-container {
-                flex-direction: column;
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                width: 280px;
-                z-index: 1000;
-                transform: translateX(-100%);
-                box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                padding: 20px;
-                padding-top: 80px; /* Space for the fixed toggle button */
-            }
-            
-            .exercise-view h1 {
-                font-size: 1.8rem;
-            }
+            .app-container { flex-direction: column; }
+            .mobile-menu-toggle { display: block; }
+            .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 1000; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { padding: 20px; padding-top: 80px; }
+            .exercise-view h1 { font-size: 1.8rem; }
         }
 
     </style>
@@ -276,6 +225,13 @@
                 <h2>The Believer's Walk</h2>
                 <p>A Journal of Spiritual Exercises</p>
             </div>
+            
+            <div class="data-management-buttons">
+                <button id="export-button" class="io-button">Export Journal</button>
+                <button id="import-button" class="io-button">Import Journal</button>
+                <input type="file" id="import-file-input" style="display: none;" accept=".json">
+            </div>
+
             <nav id="navigation-menu">
                 <!-- Categories and exercises will be dynamically inserted here by JavaScript -->
             </nav>
@@ -284,8 +240,13 @@
         <!-- Main Content Area -->
         <main class="main-content" id="main-content">
             <div class="welcome-view" id="welcome-view">
-                <h1>Welcome, Child of God.</h1>
-                <p>Select a spiritual exercise from the menu to begin your journey of reflection and growth in the Lord.</p>
+                <h1 id="welcome-header">Welcome, Child of God.</h1>
+                <div id="name-prompt">
+                    <p>What is your name?</p>
+                    <input type="text" id="name-input" placeholder="Enter your name">
+                    <button id="name-submit" class="save-button">Begin</button>
+                </div>
+                <p id="welcome-message">Select an exercise from the menu to begin your journey of reflection and growth in the Lord.</p>
                 <p><em>"Thy word is a lamp unto my feet, and a light unto my path." - Psalm 119:105</em></p>
             </div>
 
@@ -299,15 +260,14 @@
                     <label for="journal-entry">My Thoughts, Confessions, and Prayers</label>
                     <textarea id="journal-entry" class="journal-textarea" placeholder="Write your reflections here..."></textarea>
                 </div>
-                <button class="save-button" id="save-button">Save Entry</button>
-                <span id="save-feedback">Saved!</span>
+                <button class="save-button" id="save-button">Update Entry</button>
+                <span id="save-feedback">Updated!</span>
             </div>
         </main>
     </div>
 
     <script>
     // --- DATA: The 100 Spiritual Exercises ---
-    // Stored in a structured array. This makes it easy to add, remove, or edit exercises without touching the HTML.
     const spiritualExercises = [
         { id: 1, category: 'Prayer & Supplication', title: 'The Morning Watch', explanation: 'Begin your day with prayer and dedication to God.', reference: 'Psalm 5:3' },
         { id: 2, category: 'Prayer & Supplication', title: 'Evening Prayer', explanation: 'End your day with thanks, committing it to God.', reference: 'Psalm 4:8' },
@@ -416,6 +376,12 @@
         // Get references to all the important elements on the page
         const navigationMenu = document.getElementById('navigation-menu');
         const welcomeView = document.getElementById('welcome-view');
+        const welcomeHeader = document.getElementById('welcome-header');
+        const namePrompt = document.getElementById('name-prompt');
+        const nameInput = document.getElementById('name-input');
+        const nameSubmit = document.getElementById('name-submit');
+        const welcomeMessage = document.getElementById('welcome-message');
+        
         const exerciseView = document.getElementById('exercise-view');
         const exerciseTitle = document.getElementById('exercise-title');
         const exerciseExplanation = document.getElementById('exercise-explanation');
@@ -423,16 +389,49 @@
         const journalEntry = document.getElementById('journal-entry');
         const saveButton = document.getElementById('save-button');
         const saveFeedback = document.getElementById('save-feedback');
+        
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('main-content');
 
+        const exportButton = document.getElementById('export-button');
+        const importButton = document.getElementById('import-button');
+        const importFileInput = document.getElementById('import-file-input');
+
         let currentExerciseId = null;
 
-        // --- Function to build the navigation menu from the data array ---
+        // --- Function to handle name personalization ---
+        function setupName() {
+            const savedName = localStorage.getItem('userName');
+            if (savedName) {
+                welcomeHeader.textContent = `Welcome, ${savedName}.`;
+                namePrompt.style.display = 'none';
+                welcomeMessage.style.display = 'block';
+            } else {
+                welcomeHeader.textContent = 'Welcome, Child of God.';
+                namePrompt.style.display = 'block';
+                welcomeMessage.style.display = 'none';
+            }
+        }
+
+        function saveName() {
+            const userName = nameInput.value.trim();
+            if (userName) {
+                localStorage.setItem('userName', userName);
+                setupName();
+            }
+        }
+
+        nameSubmit.addEventListener('click', saveName);
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                saveName();
+            }
+        });
+
+        // --- Function to build the accordion navigation menu ---
         function populateNavMenu() {
             const categories = {};
-            // Group exercises by category
             spiritualExercises.forEach(ex => {
                 if (!categories[ex.category]) {
                     categories[ex.category] = [];
@@ -440,7 +439,7 @@
                 categories[ex.category].push(ex);
             });
 
-            // Create the HTML for the menu
+            navigationMenu.innerHTML = ''; // Clear existing menu
             for (const category in categories) {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category-list';
@@ -458,7 +457,7 @@
                     const link = document.createElement('a');
                     link.href = `#exercise-${ex.id}`;
                     link.textContent = `${ex.id}. ${ex.title}`;
-                    link.dataset.id = ex.id; // Store the ID for easy access
+                    link.dataset.id = ex.id;
                     listItem.appendChild(link);
                     exerciseList.appendChild(listItem);
                 });
@@ -467,76 +466,133 @@
             }
         }
 
+        // --- Accordion click listener ---
+        navigationMenu.addEventListener('click', (e) => {
+            const target = e.target;
+            // Handle accordion toggle
+            if (target.tagName === 'H3') {
+                const parentCategory = target.parentElement;
+                parentCategory.classList.toggle('open');
+            }
+            // Handle exercise selection
+            if (target.tagName === 'A') {
+                e.preventDefault();
+                const id = target.dataset.id;
+                showExercise(id);
+            }
+        });
+
         // --- Function to display a selected exercise ---
         function showExercise(id) {
             currentExerciseId = parseInt(id);
             const exercise = spiritualExercises.find(ex => ex.id === currentExerciseId);
 
             if (exercise) {
-                // Update the content
                 exerciseTitle.textContent = `${exercise.id}. ${exercise.title}`;
                 exerciseExplanation.textContent = exercise.explanation;
                 exerciseReference.textContent = exercise.reference;
-
-                // Load saved entry from localStorage
                 journalEntry.value = localStorage.getItem(`journalEntry-${currentExerciseId}`) || '';
-
-                // Switch views
                 welcomeView.style.display = 'none';
                 exerciseView.style.display = 'block';
 
-                // Update active link in sidebar
-                document.querySelectorAll('.exercise-list-item a').forEach(a => {
-                    a.classList.remove('active');
-                });
+                document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
                 const activeLink = document.querySelector(`.exercise-list-item a[data-id='${currentExerciseId}']`);
                 if (activeLink) {
                     activeLink.classList.add('active');
+                    // Open the parent accordion if it's closed
+                    activeLink.closest('.category-list').classList.add('open');
                 }
                 
-                // On mobile, close the sidebar after selection
                 if (window.innerWidth <= 768) {
                     sidebar.classList.remove('open');
                 }
             }
         }
 
-        // --- Event Listener for the navigation menu ---
-        navigationMenu.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (e.target.tagName === 'A') {
-                const id = e.target.dataset.id;
-                showExercise(id);
-            }
-        });
-
         // --- Event Listener for the save button ---
         saveButton.addEventListener('click', () => {
             if (currentExerciseId !== null) {
-                // Save the current text area content to localStorage
                 localStorage.setItem(`journalEntry-${currentExerciseId}`, journalEntry.value);
-                
-                // Show feedback message
                 saveFeedback.style.opacity = 1;
-                setTimeout(() => {
-                    saveFeedback.style.opacity = 0;
-                }, 2000); // Fade out after 2 seconds
+                setTimeout(() => { saveFeedback.style.opacity = 0; }, 2000);
             }
+        });
+
+        // --- Export and Import Logic ---
+        exportButton.addEventListener('click', () => {
+            const dataToExport = {
+                userName: localStorage.getItem('userName') || '',
+                journalEntries: {}
+            };
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('journalEntry-')) {
+                    dataToExport.journalEntries[key] = localStorage.getItem(key);
+                }
+            }
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataBlob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'spiritual_journal_backup.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+
+        importButton.addEventListener('click', () => {
+            importFileInput.click();
+        });
+
+        importFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    // Basic validation
+                    if (importedData && importedData.journalEntries) {
+                        // Clear existing entries before import
+                        for (let i = localStorage.length - 1; i >= 0; i--) {
+                            const key = localStorage.key(i);
+                            if (key.startsWith('journalEntry-')) {
+                                localStorage.removeItem(key);
+                            }
+                        }
+                        
+                        // Import new data
+                        localStorage.setItem('userName', importedData.userName || '');
+                        for (const key in importedData.journalEntries) {
+                            localStorage.setItem(key, importedData.journalEntries[key]);
+                        }
+                        
+                        alert('Journal imported successfully! The page will now reload.');
+                        location.reload();
+                    } else {
+                        alert('Error: Invalid journal file format.');
+                    }
+                } catch (error) {
+                    alert('Error reading or parsing the file. Please ensure it is a valid journal backup.');
+                    console.error("Import error:", error);
+                }
+            };
+            reader.readAsText(file);
+            // Reset file input to allow importing the same file again
+            event.target.value = '';
         });
 
         // --- Mobile Menu Toggle Logic ---
-        mobileMenuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
-        
-        // Close sidebar if user clicks outside of it on mobile
+        mobileMenuToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); });
         mainContent.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-            }
+            if (sidebar.classList.contains('open')) { sidebar.classList.remove('open'); }
         });
 
         // --- Initial Application Setup ---
+        setupName();
         populateNavMenu();
     });
     </script>
