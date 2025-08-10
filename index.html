@@ -17,7 +17,7 @@
             --accent-color: #8a6d46;
             --border-color: #e0d9cf;
             --shadow-color: rgba(0, 0, 0, 0.05);
-            --favorite-star-color: #f3d23e;
+            --key-color: #c5a157;
         }
 
         body {
@@ -61,8 +61,8 @@
         .data-management-buttons { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; }
         .io-button { background: #f7f3ed; border: 1px solid var(--border-color); color: var(--accent-color); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background-color 0.2s; flex-basis: 45%; text-align: center;}
         .io-button:hover { background-color: #f0ebe4; }
-        #home-button, #favorites-button { background-color: var(--accent-color); color: white; }
-        #home-button:hover, #favorites-button:hover { background-color: #6d5635; }
+        #home-button, #keys-button { background-color: var(--accent-color); color: white; }
+        #home-button:hover, #keys-button:hover { background-color: #6d5635; }
         #help-button {
             background: none;
             border: none;
@@ -92,11 +92,11 @@
         
         /* --- Main Content Area --- */
         .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
-        .welcome-view, .exercise-view, .favorites-view { max-width: 800px; margin: 0 auto; }
+        .welcome-view, .exercise-view, .keys-view { max-width: 800px; margin: 0 auto; }
         
-        /* Welcome & Favorites View Styles */
-        .welcome-view, .favorites-view { text-align: center; padding-top: 5vh; }
-        .welcome-view h1, .favorites-view h1 { font-size: 2.5rem; }
+        /* Welcome & Keys View Styles */
+        .welcome-view, .keys-view { text-align: center; padding-top: 5vh; }
+        .welcome-view h1, .keys-view h1 { font-size: 2.5rem; }
         .welcome-view p { font-size: 1.2rem; color: #555; }
         
         #welcome-header .cursor {
@@ -125,17 +125,18 @@
             text-align: center; 
         }
         #name-prompt button { font-size: 1.1rem; padding: 10px 20px; }
-        #favorites-section { margin-top: 40px; text-align: left; }
-        #favorites-list { list-style: none; padding: 0; }
-        #favorites-list li { background: white; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 2px 5px var(--shadow-color); }
-        #favorites-list a { display: block; padding: 15px; text-decoration: none; color: var(--heading-color); font-weight: 600; transition: background-color 0.2s; border-radius: 6px; }
-        #favorites-list a:hover { background-color: #f7f3ed; }
+        #keys-section { margin-top: 40px; text-align: left; }
+        #keys-list { list-style: none; padding: 0; }
+        #keys-list li { background: white; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 2px 5px var(--shadow-color); }
+        #keys-list a { display: block; padding: 15px; text-decoration: none; color: var(--heading-color); font-weight: 600; transition: background-color 0.2s; border-radius: 6px; }
+        #keys-list a:hover { background-color: #f7f3ed; }
 
         /* Exercise View Styles */
         .exercise-header { display: flex; justify-content: space-between; align-items: center; }
         .exercise-view h1 { margin-top: 0; font-size: 2.2rem; }
-        #favorite-star { font-size: 2rem; cursor: pointer; color: #ccc; transition: color 0.2s, transform 0.2s; }
-        #favorite-star.favorited { color: var(--favorite-star-color); transform: scale(1.2); }
+        #key-icon-wrapper { cursor: pointer; color: #ccc; transition: color 0.2s, transform 0.2s; }
+        #key-icon-wrapper.keyed { color: var(--key-color); transform: scale(1.1); }
+
 
         .exercise-scripture { font-family: 'Lora', serif; font-style: italic; font-size: 1.1rem; padding: 15px; background-color: #f7f3ed; border-left: 4px solid var(--accent-color); border-radius: 4px; margin: 20px 0; }
         .exercise-scripture strong { font-weight: 600; color: var(--heading-color); }
@@ -200,7 +201,7 @@
             
             <div class="data-management-buttons">
                 <button id="home-button" class="io-button">Home</button>
-                <button id="favorites-button" class="io-button">Favorites</button>
+                <button id="keys-button" class="io-button">Key Exercises</button>
                 <button id="export-button" class="io-button">Export</button>
                 <button id="import-button" class="io-button">Import</button>
                 <button id="history-button" class="io-button" style="flex-basis: 95%;">View History</button>
@@ -222,17 +223,21 @@
                 <p id="welcome-message" style="display: none;">Select an exercise from the menu to begin.</p>
             </div>
 
-            <div class="favorites-view" id="favorites-view" style="display: none;">
-                <h1>Favorite Exercises</h1>
-                <div id="favorites-section">
-                    <ul id="favorites-list"></ul>
+            <div class="keys-view" id="keys-view" style="display: none;">
+                <h1>Key Exercises</h1>
+                <div id="keys-section">
+                    <ul id="keys-list"></ul>
                 </div>
             </div>
 
             <div class="exercise-view" id="exercise-view" style="display: none;">
                 <div class="exercise-header">
                     <h1 id="exercise-title"></h1>
-                    <span id="favorite-star" title="Mark as Favorite">&#9733;</span>
+                    <span id="key-icon-wrapper" title="Mark as a Key Exercise">
+                        <svg id="key-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                            <path d="M16.7,11.9l2.8-2.8c0.9-0.9,0.9-2.5,0-3.4L18.1,4.3c-0.9-0.9-2.5-0.9-3.4,0l-2.8,2.8C11.1,6.4,10.1,6,9,6C5.1,6,2,9.1,2,13 s3.1,7,7,7c2.2,0,4.2-1,5.5-2.5l3.5,3.5c0.9,0.9,2.5,0.9,3.4,0l1.4-1.4c0.9-0.9,0.9-2.5,0-3.4L19.3,13C18.3,12.5,17.4,12.1,16.7,11.9z M9,18c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S11.8,18,9,18z"/>
+                        </svg>
+                    </span>
                 </div>
                 <div class="exercise-scripture">
                     <p id="exercise-explanation"></p>
@@ -245,7 +250,7 @@
 
                 <div class="new-entry-area">
                     <label for="journal-entry">Add a New Entry</label>
-                    <textarea id="journal-entry" class="journal-textarea" placeholder="Write your new reflections here..."></textarea>
+                    <textarea id="journal-entry" class="journal-textarea" placeholder="My thoughts, confessions, praise and prayers"></textarea>
                     <button class="save-button" id="save-button">Add Entry</button>
                     <span id="save-feedback">Entry Added!</span>
                 </div>
@@ -293,6 +298,16 @@
                 <button class="modal-close" id="help-modal-close-button">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="faq-item" style="background-color: var(--primary-bg); padding: 15px; border-radius: 8px;">
+                    <h4>A Note on Your Privacy & How This App Works</h4>
+                    <p>This journal was built with your privacy as the highest priority. In a world of accounts, clouds, and constant data collection, this app is fundamentally different.</p>
+                    <ul style="text-align: left;">
+                        <li><strong>Completely Private:</strong> Your journal entries <strong>never travel over the internet</strong> and are not stored on any company's server. Everything you write is saved directly and only on your own device's browser.</li>
+                        <li><strong>No Account Needed:</strong> You will never be asked to create an account, sign up, or provide an email address. Your journal is yours alone.</li>
+                        <li><strong>You Own Your Data:</strong> The <strong>"Export"</strong> feature allows you to save a complete copy of your journal to your computer at any time. It's wise to keep this file in a secure location, just as you would any other important personal document. A good practice is to email the file to yourself, as services like Gmail provide excellent security.</li>
+                        <li><strong>No Installation:</strong> This is a self-contained web application. There is nothing to download from an app store, ensuring it's always available.</li>
+                    </ul>
+                </div>
                 <div class="faq-item">
                     <h4>Personalizing Your Journal</h4>
                     <p>The first time you visit, you'll be asked for a name or an inspiring appellation. This is saved on your device to personalize your welcome message. It is also saved in your export file.</p>
@@ -306,20 +321,16 @@
                     <p>On any exercise page, type your reflections in the "Add a New Entry" text box and click the "Add Entry" button. Your entry will be saved with the current date and time and will appear above the text box. You can add multiple entries for each exercise.</p>
                 </div>
                 <div class="faq-item">
-                    <h4>Favoriting Exercises</h4>
-                    <p>Click the star icon (&#9733;) at the top of an exercise page to mark it as a favorite. Click the "Favorites" button in the sidebar to view a list of all your favorite exercises for quick access.</p>
+                    <h4>Marking Key Exercises</h4>
+                    <p>Click the key icon at the top of an exercise page to mark it as a "Key Exercise" that can help unlock spiritual obstacles. Click the "Key Exercises" button in the sidebar to view a list of all your marked exercises for quick access.</p>
                 </div>
                 <div class="faq-item">
                     <h4>Viewing Your History</h4>
                     <p>Click the "View History" button to see a complete list of all your journal entries. You can filter this list by date and sort it by date, category, or exercise title.</p>
                 </div>
-                <div class="faq-item">
-                    <h4>Exporting and Importing Your Journal</h4>
-                    <p>Your journal is saved in your browser. To back it up or move it to another device, use the "Export" button. This will save a `.json` file to your computer. On a new device, use the "Import" button to select that file and restore your journal.</p>
-                </div>
                  <div class="faq-item">
                     <h4>Merge vs. Replace</h4>
-                    <p>When you import a file, you will be given two options. <strong>Merge</strong> will intelligently combine the journal entries and favorites from your imported file with the data already in your browser. <strong>Replace</strong> will completely erase your current journal and replace it with the data from the imported file.</p>
+                    <p>When you import a file, you will be given two options. <strong>Merge</strong> will intelligently combine the journal entries and key exercises from your imported file with the data already in your browser. <strong>Replace</strong> will completely erase your current journal and replace it with the data from the imported file.</p>
                 </div>
             </div>
         </div>
