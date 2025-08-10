@@ -467,11 +467,11 @@
         const nameInput = getEl('name-input');
         const nameSubmit = getEl('name-submit');
         const welcomeMessage = getEl('welcome-message');
-        const favoritesView = getEl('favorites-view');
-        const favoritesList = getEl('favorites-list');
+        const keysView = getEl('keys-view');
+        const keysList = getEl('keys-list');
         const exerciseView = getEl('exercise-view');
         const exerciseTitle = getEl('exercise-title');
-        const favoriteStar = getEl('favorite-star');
+        const keyIconWrapper = getEl('key-icon-wrapper');
         const exerciseExplanation = getEl('exercise-explanation');
         const exerciseReference = getEl('exercise-reference');
         const entryHistoryList = getEl('entry-history-list');
@@ -482,7 +482,7 @@
         const sidebar = getEl('sidebar');
         const mainContent = getEl('main-content');
         const homeButton = getEl('home-button');
-        const favoritesButton = getEl('favorites-button');
+        const keysButton = getEl('keys-button');
         const exportButton = getEl('export-button');
         const importButton = getEl('import-button');
         const importFileInput = getEl('import-file-input');
@@ -501,15 +501,15 @@
         const filterButton = getEl('filter-button');
 
         let currentExerciseId = null;
-        let favorites = [];
+        let keys = [];
         let historyReportData = [];
         let currentSort = { key: 'date', order: 'desc' };
         let animationRunning = false;
         let importedData = null;
 
         // --- Data Handling ---
-        const getFavorites = () => JSON.parse(localStorage.getItem('journalFavorites')) || [];
-        const saveFavorites = () => localStorage.setItem('journalFavorites', JSON.stringify(favorites));
+        const getKeys = () => JSON.parse(localStorage.getItem('journalKeys')) || [];
+        const saveKeys = () => localStorage.setItem('journalKeys', JSON.stringify(keys));
 
         // --- Typing Animation ---
         const appellations = [
@@ -578,12 +578,12 @@
             }
         }
 
-        // --- Favorites Logic ---
-        function displayFavorites() {
-            favorites = getFavorites();
-            favoritesList.innerHTML = '';
-            if (favorites.length > 0) {
-                favorites.forEach(id => {
+        // --- Keys Logic ---
+        function displayKeys() {
+            keys = getKeys();
+            keysList.innerHTML = '';
+            if (keys.length > 0) {
+                keys.forEach(id => {
                     const exercise = spiritualExercises.find(ex => ex.id === id);
                     if (exercise) {
                         const li = document.createElement('li');
@@ -592,33 +592,33 @@
                         a.dataset.id = id;
                         a.textContent = exercise.title;
                         li.appendChild(a);
-                        favoritesList.appendChild(li);
+                        keysList.appendChild(li);
                     }
                 });
             } else {
-                favoritesList.innerHTML = '<li><p>You haven\'t marked any exercises as favorites yet. Click the star icon on an exercise to add it here.</p></li>';
+                keysList.innerHTML = '<li><p>You haven\'t marked any Key Exercises yet. Click the key icon on an exercise to add it here.</p></li>';
             }
         }
 
-        function toggleFavorite() {
+        function toggleKey() {
             if (currentExerciseId === null) return;
-            const index = favorites.indexOf(currentExerciseId);
+            const index = keys.indexOf(currentExerciseId);
             if (index > -1) {
-                favorites.splice(index, 1);
+                keys.splice(index, 1);
             } else {
-                favorites.push(currentExerciseId);
+                keys.push(currentExerciseId);
             }
-            saveFavorites();
-            updateFavoriteStar();
+            saveKeys();
+            updateKeyIcon();
         }
 
-        function updateFavoriteStar() {
-            if (favorites.includes(currentExerciseId)) {
-                favoriteStar.classList.add('favorited');
-                favoriteStar.title = "Remove from Favorites";
+        function updateKeyIcon() {
+            if (keys.includes(currentExerciseId)) {
+                keyIconWrapper.classList.add('keyed');
+                keyIconWrapper.title = "Remove from Key Exercises";
             } else {
-                favoriteStar.classList.remove('favorited');
-                favoriteStar.title = "Mark as Favorite";
+                keyIconWrapper.classList.remove('keyed');
+                keyIconWrapper.title = "Mark as a Key Exercise";
             }
         }
 
@@ -657,19 +657,19 @@
         function showWelcomeScreen() {
             currentExerciseId = null;
             exerciseView.style.display = 'none';
-            favoritesView.style.display = 'none';
+            keysView.style.display = 'none';
             welcomeView.style.display = 'block';
             document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
             setupWelcome();
         }
 
-        function showFavoritesScreen() {
+        function showKeysScreen() {
             currentExerciseId = null;
             exerciseView.style.display = 'none';
             welcomeView.style.display = 'none';
-            favoritesView.style.display = 'block';
+            keysView.style.display = 'block';
             document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
-            displayFavorites();
+            displayKeys();
         }
 
         function renderEntryHistory(exerciseId) {
@@ -707,9 +707,9 @@
                 renderEntryHistory(currentExerciseId);
                 journalEntry.value = ''; // Clear textarea for new entry
 
-                updateFavoriteStar();
+                updateKeyIcon();
                 welcomeView.style.display = 'none';
-                favoritesView.style.display = 'none';
+                keysView.style.display = 'none';
                 exerciseView.style.display = 'block';
 
                 document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
@@ -834,7 +834,7 @@
         function exportJournal() {
             const dataToExport = {
                 userName: localStorage.getItem('userName') || '',
-                journalFavorites: getFavorites(),
+                journalKeys: getKeys(),
                 journalEntries: {}
             };
             for (let i = 0; i < localStorage.length; i++) {
@@ -860,7 +860,7 @@
             reader.onload = (e) => {
                 try {
                     importedData = JSON.parse(e.target.result);
-                    if (importedData && (importedData.journalEntries || importedData.userName || importedData.journalFavorites)) {
+                    if (importedData && (importedData.journalEntries || importedData.userName || importedData.journalKeys)) {
                         importChoiceModal.style.display = 'flex';
                     } else {
                         alert('Error: Invalid journal file format.');
@@ -876,7 +876,7 @@
         function replaceData(data) {
             localStorage.clear();
             if(data.userName) localStorage.setItem('userName', data.userName);
-            if(data.journalFavorites) localStorage.setItem('journalFavorites', JSON.stringify(data.journalFavorites));
+            if(data.journalKeys) localStorage.setItem('journalKeys', JSON.stringify(data.journalKeys));
             if(data.journalEntries) {
                 for (const key in data.journalEntries) {
                     localStorage.setItem(key, data.journalEntries[key]);
@@ -890,11 +890,11 @@
             // Merge/overwrite name
             if(data.userName) localStorage.setItem('userName', data.userName);
 
-            // Merge favorites
-            const localFavorites = getFavorites();
-            const importedFavorites = data.journalFavorites || [];
-            const mergedFavorites = [...new Set([...localFavorites, ...importedFavorites])];
-            localStorage.setItem('journalFavorites', JSON.stringify(mergedFavorites));
+            // Merge keys
+            const localKeys = getKeys();
+            const importedKeys = data.journalKeys || [];
+            const mergedKeys = [...new Set([...localKeys, ...importedKeys])];
+            localStorage.setItem('journalKeys', JSON.stringify(mergedKeys));
 
             // Merge entries
             if (data.journalEntries) {
@@ -930,13 +930,13 @@
             if (e.target.tagName === 'A') { e.preventDefault(); showExercise(e.target.dataset.id); }
         });
         
-        favoritesList.addEventListener('click', (e) => {
+        keysList.addEventListener('click', (e) => {
             if (e.target.tagName === 'A') { e.preventDefault(); showExercise(e.target.dataset.id); }
         });
 
         homeButton.addEventListener('click', showWelcomeScreen);
-        favoritesButton.addEventListener('click', showFavoritesScreen);
-        favoriteStar.addEventListener('click', toggleFavorite);
+        keysButton.addEventListener('click', showKeysScreen);
+        keyIconWrapper.addEventListener('click', toggleKey);
         saveButton.addEventListener('click', saveEntry);
         
         historyButton.addEventListener('click', () => {
