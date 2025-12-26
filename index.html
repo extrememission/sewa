@@ -880,6 +880,7 @@
             currentExerciseId = null;
             exerciseView.style.display = 'none';
             keysView.style.display = 'none';
+            dailyView.style.display = 'none';
             welcomeView.style.display = 'block';
             document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
             setupWelcome();
@@ -890,6 +891,7 @@
             currentExerciseId = null;
             exerciseView.style.display = 'none';
             welcomeView.style.display = 'none';
+            dailyView.style.display = 'none';
             keysView.style.display = 'block';
             document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
             displayKeys();
@@ -934,6 +936,7 @@
                 updateKeyToggle();
                 welcomeView.style.display = 'none';
                 keysView.style.display = 'none';
+                dailyView.style.display = 'none';
                 exerciseView.style.display = 'block';
 
                 document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
