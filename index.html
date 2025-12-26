@@ -89,6 +89,9 @@
         .exercise-list-item a { display: block; padding: 10px 15px 10px 25px; text-decoration: none; color: var(--text-color); border-radius: 6px; margin-bottom: 5px; transition: background-color 0.2s, color 0.2s; font-weight: 500; }
         .exercise-list-item a:hover { background-color: #f0ebe4; }
         .exercise-list-item a.active { background-color: var(--accent-color); color: white; font-weight: 700; }
+        .exercise-list-item { display: flex; align-items: center; }
+        .exercise-list-item a { flex-grow: 1; }
+        .exercise-list-item .key-toggle-nav { margin-right: 10px; accent-color: var(--key-color); }
         
         /* --- Main Content Area --- */
         .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
@@ -250,6 +253,7 @@
                 <input type="file" id="import-file-input" style="display: none;" accept=".json">
             </div>
 
+            <h3 style="text-align: center; color: var(--accent-color);">Spiritual Exercises</h3>
             <nav id="navigation-menu"></nav>
         </aside>
 
@@ -257,7 +261,7 @@
             <div class="welcome-view" id="welcome-view">
                 <h1 id="welcome-header">Welcome, <span id="animated-text-wrapper"><span id="animated-text"></span></span><span class="cursor"></span></h1>
                 <div id="name-prompt" style="display: none;">
-                    <p>To personalize your app, enter a nickname or inspiring appellation.</p>
+                    <p>Enter your name:</p>
                     <input type="text" id="name-input" placeholder="e.g., Jim, Jane, Ambassador for Christ">
                     <button id="name-submit" class="save-button">Begin</button>
                 </div>
@@ -374,7 +378,7 @@
                 </div>
                 <div class="faq-item">
                     <h4>Personalizing Your Journal</h4>
-                    <p>The first time you visit, you'll be asked for a name or an inspiring appellation. This is saved on your device to personalize your welcome message. It is also saved in your export file.</p>
+                    <p>The first time you visit, you'll be asked for your name. This is saved on your device to personalize your welcome message. It is also saved in your export file.</p>
                 </div>
                 <div class="faq-item">
                     <h4>Navigating Exercises</h4>
@@ -390,7 +394,7 @@
                 </div>
                 <div class="faq-item">
                     <h4>Viewing Your History</h4>
-                    <p>Click the "View History" button to see a complete list of all your journal entries. You can filter this list by date and sort it by date, category, or exercise title.</p>
+                    <p>Click the "View History" button to see a complete list of all your journal entries. You can filter this list by date and sort it by date, category, or exercise title. In the history table, you can click on a date to go to the card for that date, click on a category to list all the entries for that category by exercise and by date, or click on an exercise to list all the entries for that exercise by date.</p>
                 </div>
                  <div class="faq-item">
                     <h4>Merge vs. Replace</h4>
@@ -627,7 +631,7 @@
 
         function stopAnimation() {
             animationRunning = false;
-            welcomeHeader.innerHTML = 'Welcome, Extreme Mission Christian.';
+            welcomeHeader.innerHTML = 'Welcome, Christian.';
         }
 
         // --- Name Personalization ---
@@ -658,37 +662,38 @@
             keys = getKeys();
             keysList.innerHTML = '';
             if (keys.length > 0) {
-                keys.forEach(id => {
-                    const exercise = spiritualExercises.find(ex => ex.id === id);
-                    if (exercise) {
-                        const li = document.createElement('li');
-                        const a = document.createElement('a');
-                        a.href = `#exercise-${id}`;
-                        a.dataset.id = id;
-                        a.textContent = exercise.title;
-                        li.appendChild(a);
-                        keysList.appendChild(li);
-                    }
+                const keyedExercises = keys.map(id => spiritualExercises.find(ex => ex.id === id)).filter(Boolean);
+                keyedExercises.forEach(exercise => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = `#exercise-${exercise.id}`;
+                    a.dataset.id = exercise.id;
+                    a.textContent = exercise.title;
+                    li.appendChild(a);
+                    keysList.appendChild(li);
                 });
             } else {
                 keysList.innerHTML = `<li><p>You haven't marked any Key Exercises yet. Check the box at the top of an exercise page to add it here.</p></li>`;
             }
         }
 
-        function toggleKey() {
-            if (currentExerciseId === null) {
-                keyCheckbox.checked = false;
-                return;
-            }
+        function toggleKey(id, isChecked) {
             keys = getKeys();
-            const index = keys.indexOf(currentExerciseId);
-            if (keyCheckbox.checked && index === -1) {
-                keys.push(currentExerciseId);
-            } else if (!keyCheckbox.checked && index > -1) {
+            const index = keys.indexOf(id);
+            if (isChecked && index === -1) {
+                keys.push(id);
+            } else if (!isChecked && index > -1) {
                 keys.splice(index, 1);
             }
             saveKeys();
-            updateKeyToggle();
+            
+            // Update UI elements
+            updateKeyToggle(); // For exercise view
+            if (keysView.style.display === 'block') displayKeys(); // For keys view
+            
+            // Update the checkbox in the nav menu
+            const navCheckbox = navigationMenu.querySelector(`.key-toggle-nav[data-id='${id}']`);
+            if (navCheckbox) navCheckbox.checked = isChecked;
         }
 
         function updateKeyToggle() {
@@ -706,6 +711,10 @@
             keyToggle.classList.toggle('checked', isKeyed);
             keyCheckboxLabel.textContent = isKeyed ? 'Marked as Key Exercise' : 'Mark as Key Exercise';
             keyToggle.title = isKeyed ? "Unmark as a Key Exercise" : "Mark as a Key Exercise";
+
+            // Also update the nav menu checkbox
+            const navCheckbox = navigationMenu.querySelector(`.key-toggle-nav[data-id='${currentExerciseId}']`);
+            if (navCheckbox) navCheckbox.checked = isKeyed;
         }
 
         // --- Daily Journal Logic ---
@@ -853,6 +862,8 @@
             });
 
             navigationMenu.innerHTML = '';
+            keys = getKeys(); 
+
             for (const category in categories) {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category-list';
@@ -864,10 +875,19 @@
                 categories[category].forEach(ex => {
                     const listItem = document.createElement('li');
                     listItem.className = 'exercise-list-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'key-toggle-nav';
+                    checkbox.dataset.id = ex.id;
+                    checkbox.checked = keys.includes(ex.id);
+                    
                     const link = document.createElement('a');
                     link.href = `#exercise-${ex.id}`;
                     link.textContent = `${ex.id}. ${ex.title}`;
                     link.dataset.id = ex.id;
+
+                    listItem.appendChild(checkbox);
                     listItem.appendChild(link);
                     exerciseList.appendChild(listItem);
                 });
@@ -1159,6 +1179,12 @@
         nameInput.addEventListener('focus', stopAnimation, { once: true });
         
         navigationMenu.addEventListener('click', (e) => {
+            if (e.target.classList.contains('key-toggle-nav')) {
+                const id = parseInt(e.target.dataset.id);
+                toggleKey(id, e.target.checked);
+                e.stopPropagation();
+                return;
+            }
             if (e.target.tagName === 'H3') e.target.parentElement.classList.toggle('open');
             if (e.target.tagName === 'A') { e.preventDefault(); showExercise(e.target.dataset.id); }
         });
@@ -1170,7 +1196,7 @@
         homeButton.addEventListener('click', showWelcomeScreen);
         keysButton.addEventListener('click', showKeysScreen);
         dailyButton.addEventListener('click', showDailyScreen);
-        keyCheckbox.addEventListener('change', toggleKey);
+        keyCheckbox.addEventListener('change', (e) => toggleKey(currentExerciseId, e.target.checked));
         saveButton.addEventListener('click', saveEntry);
         dailyMonths.addEventListener('click', (e) => {
             const card = e.target.closest('.day-card');
