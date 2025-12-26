@@ -234,6 +234,8 @@
             .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 1000; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
             .sidebar.open { transform: translateX(0); }
             .main-content { padding: 20px; padding-top: 40px; padding-bottom: 120px; }
+            .exercise-header { flex-direction: column; align-items: stretch; }
+            .key-toggle { display: flex; justify-content: space-between; margin-top: 15px; }
             .exercise-view h1 { font-size: 1.8rem; }
             .modal-filters { flex-direction: column; align-items: stretch; }
         }
@@ -318,8 +320,8 @@
                 <div class="exercise-header">
                     <h1 id="exercise-title"></h1>
                     <label class="key-toggle" id="key-toggle" for="key-checkbox" title="Mark as a Key Exercise">
-                        <input type="checkbox" id="key-checkbox">
                         <span id="key-checkbox-label">Mark as Key Exercise</span>
+                        <input type="checkbox" id="key-checkbox">
                     </label>
                 </div>
                 <div class="exercise-scripture">
