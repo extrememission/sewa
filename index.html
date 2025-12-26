@@ -132,6 +132,31 @@
         #keys-list a { display: block; padding: 15px; text-decoration: none; color: var(--heading-color); font-weight: 600; transition: background-color 0.2s; border-radius: 6px; }
         #keys-list a:hover { background-color: #f7f3ed; }
 
+        /* Daily Journal View */
+        .daily-view { max-width: 1000px; margin: 0 auto; }
+        .daily-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .daily-subtitle { margin: 6px 0 0; color: #555; }
+        .daily-filter { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .daily-filter select { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: white; }
+        .daily-month-group { margin-bottom: 28px; }
+        .daily-month-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+        .daily-month-title { font-size: 1.4rem; margin: 0; color: var(--accent-color); }
+        .day-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+        .day-card { background: white; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; box-shadow: 0 4px 10px var(--shadow-color); cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease; }
+        .day-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+        .day-card-date { font-weight: 700; color: var(--heading-color); }
+        .day-card-weekday { color: #777; font-size: 0.9rem; margin-bottom: 6px; }
+        .day-card-total { font-weight: 700; color: var(--accent-color); margin-top: 6px; }
+        .day-card-exercises { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .day-card-pill { background: #f7f3ed; border-radius: 6px; padding: 4px 8px; font-size: 0.9rem; color: var(--heading-color); border: 1px solid var(--border-color); }
+        .day-detail { margin-top: 24px; background: white; border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 4px 12px var(--shadow-color); padding: 18px; }
+        .day-detail-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .day-exercise-block { border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; }
+        .day-exercise-title { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--heading-color); }
+        .day-entry { margin: 8px 0; padding: 10px; background: var(--primary-bg); border-radius: 6px; border: 1px solid var(--border-color); }
+        .day-entry time { display: block; font-size: 0.85rem; color: #777; margin-bottom: 4px; }
+        .muted { color: #777; }
+
         /* Exercise View Styles */
         .exercise-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
         .exercise-view h1 { margin-top: 0; font-size: 2.2rem; }
@@ -217,6 +242,7 @@
             <div class="data-management-buttons">
                 <button id="home-button" class="io-button">Home</button>
                 <button id="keys-button" class="io-button">Key Exercises</button>
+                <button id="daily-button" class="io-button">Daily Journal</button>
                 <button id="export-button" class="io-button">Export</button>
                 <button id="import-button" class="io-button">Import</button>
                 <button id="history-button" class="io-button" style="flex-basis: 95%;">View History</button>
@@ -243,6 +269,29 @@
                 <div id="keys-section">
                     <p class="keys-description">Use the checkbox labelled "Mark as Key Exercise" on any exercise to favorite it. Your checked favorites appear here for quick access.</p>
                     <ul id="keys-list"></ul>
+                </div>
+            </div>
+
+            <div class="daily-view" id="daily-view" style="display: none;">
+                <div class="daily-header">
+                    <div>
+                        <h1>Daily Journal</h1>
+                        <p class="daily-subtitle">Review your entries by day. Click a card to open the exercises you logged.</p>
+                    </div>
+                    <div class="daily-filter">
+                        <label for="daily-month-select">Jump to month</label>
+                        <select id="daily-month-select">
+                            <option value="">All months</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="daily-months"></div>
+                <div class="day-detail" id="day-detail" style="display: none;">
+                    <div class="day-detail-header">
+                        <h2 id="day-detail-title"></h2>
+                        <button class="io-button" id="day-detail-close">Close</button>
+                    </div>
+                    <div id="day-detail-body"></div>
                 </div>
             </div>
 
@@ -484,6 +533,13 @@
         const welcomeMessage = getEl('welcome-message');
         const keysView = getEl('keys-view');
         const keysList = getEl('keys-list');
+        const dailyView = getEl('daily-view');
+        const dailyMonths = getEl('daily-months');
+        const dailyMonthSelect = getEl('daily-month-select');
+        const dayDetail = getEl('day-detail');
+        const dayDetailTitle = getEl('day-detail-title');
+        const dayDetailBody = getEl('day-detail-body');
+        const dayDetailClose = getEl('day-detail-close');
         const exerciseView = getEl('exercise-view');
         const exerciseTitle = getEl('exercise-title');
         const keyToggle = getEl('key-toggle');
@@ -500,6 +556,7 @@
         const mainContent = getEl('main-content');
         const homeButton = getEl('home-button');
         const keysButton = getEl('keys-button');
+        const dailyButton = getEl('daily-button');
         const exportButton = getEl('export-button');
         const importButton = getEl('import-button');
         const importFileInput = getEl('import-file-input');
@@ -523,6 +580,7 @@
         let currentSort = { key: 'date', order: 'desc' };
         let animationRunning = false;
         let importedData = null;
+        let dailyDayIndex = {};
 
         // --- Data Handling ---
         const getKeys = () => JSON.parse(localStorage.getItem('journalKeys')) || [];
