@@ -677,6 +677,7 @@
             welcomeView.style.display = 'block';
             document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
             setupWelcome();
+            if (window.innerWidth <= 768) sidebar.classList.remove('open');
         }
 
         function showKeysScreen() {
