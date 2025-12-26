@@ -1006,10 +1006,11 @@
             }
             data.forEach(item => {
                 const row = document.createElement('tr');
+                const dateKey = item.date.toISOString().split('T')[0];
                 row.innerHTML = `
-                    <td>${item.date.toLocaleDateString()}</td>
-                    <td>${item.category}</td>
-                    <td>${item.exercise}</td>
+                    <td data-date="${dateKey}" style="cursor: pointer;">${item.date.toLocaleDateString()}</td>
+                    <td data-category="${item.category}" style="cursor: pointer;">${item.category}</td>
+                    <td data-exercise="${item.exercise}" style="cursor: pointer;">${item.exercise}</td>
                 `;
                 historyTableBody.appendChild(row);
             });
@@ -1025,6 +1026,11 @@
                 if (key === 'date') {
                     valA = valA.getTime();
                     valB = valB.getTime();
+                } else { // For category and exercise, add secondary sort by date
+                    if (valA < valB) return order === 'asc' ? -1 : 1;
+                    if (valA > valB) return order === 'asc' ? 1 : -1;
+                    // If primary keys are equal, sort by date descending
+                    return b.date.getTime() - a.date.getTime();
                 }
                 if (valA < valB) return order === 'asc' ? -1 : 1;
                 if (valA > valB) return order === 'asc' ? 1 : -1;
@@ -1191,6 +1197,33 @@
         
         filterButton.addEventListener('click', filterHistory);
         document.querySelectorAll('.history-table th').forEach(th => th.addEventListener('click', () => sortHistory(th.dataset.sort)));
+        historyTableBody.addEventListener('click', (e) => {
+            const target = e.target;
+            if (target.tagName !== 'TD') return;
+
+            const date = target.dataset.date;
+            const category = target.dataset.category;
+            const exercise = target.dataset.exercise;
+
+            if (date && target.cellIndex === 0) { // Clicked on Date
+                historyModal.style.display = 'none';
+                showDailyScreen();
+                // Use requestAnimationFrame to ensure the daily view is rendered
+                requestAnimationFrame(() => {
+                    const card = dailyMonths.querySelector(`.day-card[data-date="${date}"]`);
+                    if (card) {
+                        card.click();
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            } else if (category && target.cellIndex === 1) { // Clicked on Category
+                const categoryData = historyReportData.filter(item => item.category === category);
+                renderHistoryTable(categoryData);
+            } else if (exercise && target.cellIndex === 2) { // Clicked on Exercise
+                const exerciseData = historyReportData.filter(item => item.exercise === exercise);
+                renderHistoryTable(exerciseData);
+            }
+        });
 
         exportButton.addEventListener('click', exportJournal);
         importButton.addEventListener('click', () => importFileInput.click());
