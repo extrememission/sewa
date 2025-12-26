@@ -126,16 +126,19 @@
         }
         #name-prompt button { font-size: 1.1rem; padding: 10px 20px; }
         #keys-section { margin-top: 40px; text-align: left; }
+        .keys-description { margin: 0 0 10px 0; color: #555; font-size: 1rem; }
         #keys-list { list-style: none; padding: 0; }
         #keys-list li { background: white; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 2px 5px var(--shadow-color); }
         #keys-list a { display: block; padding: 15px; text-decoration: none; color: var(--heading-color); font-weight: 600; transition: background-color 0.2s; border-radius: 6px; }
         #keys-list a:hover { background-color: #f7f3ed; }
 
         /* Exercise View Styles */
-        .exercise-header { display: flex; justify-content: space-between; align-items: center; }
+        .exercise-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
         .exercise-view h1 { margin-top: 0; font-size: 2.2rem; }
-        #key-icon-wrapper { cursor: pointer; color: #ccc; transition: color 0.2s, transform 0.2s; }
-        #key-icon-wrapper.keyed { color: var(--key-color); transform: scale(1.1); }
+        .key-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--heading-color); user-select: none; }
+        .key-toggle input { width: 20px; height: 20px; accent-color: var(--key-color); cursor: pointer; }
+        .key-toggle span { font-size: 0.95rem; }
+        .key-toggle.checked span { color: var(--key-color); }
 
 
         .exercise-scripture { font-family: 'Lora', serif; font-style: italic; font-size: 1.1rem; padding: 15px; background-color: #f7f3ed; border-left: 4px solid var(--accent-color); border-radius: 4px; margin: 20px 0; }
@@ -238,6 +241,7 @@
             <div class="keys-view" id="keys-view" style="display: none;">
                 <h1>Key Exercises</h1>
                 <div id="keys-section">
+                    <p class="keys-description">Use the checkbox labelled "Mark as Key Exercise" on any exercise to favorite it. Your checked favorites appear here for quick access.</p>
                     <ul id="keys-list"></ul>
                 </div>
             </div>
@@ -245,11 +249,10 @@
             <div class="exercise-view" id="exercise-view" style="display: none;">
                 <div class="exercise-header">
                     <h1 id="exercise-title"></h1>
-                    <span id="key-icon-wrapper" title="Mark as a Key Exercise">
-                        <svg id="key-icon" viewBox="0 0 16 16" width="28" height="28" fill="currentColor">
-                           <path d="M8 3a5 5 0 0 0-5 5v1h.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H3v1a5 5 0 0 0 5 5a5 5 0 0 0 5-5v-1h-.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H13v-1a5 5 0 0 0-5-5zM7 9a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"/>
-                        </svg>
-                    </span>
+                    <label class="key-toggle" id="key-toggle" for="key-checkbox" title="Mark as a Key Exercise">
+                        <input type="checkbox" id="key-checkbox">
+                        <span id="key-checkbox-label">Mark as Key Exercise</span>
+                    </label>
                 </div>
                 <div class="exercise-scripture">
                     <p id="exercise-explanation"></p>
@@ -334,7 +337,7 @@
                 </div>
                 <div class="faq-item">
                     <h4>Marking Key Exercises</h4>
-                    <p>Click the key icon at the top of an exercise page to mark it as a "Key Exercise" that can help unlock spiritual obstacles. Click the "Key Exercises" button in the sidebar to view a list of all your marked exercises for quick access.</p>
+                    <p>Check the box labeled "Mark as Key Exercise" at the top of any exercise to favorite it for focus. Use the "Key Exercises" button in the sidebar to jump back to everything you've checked.</p>
                 </div>
                 <div class="faq-item">
                     <h4>Viewing Your History</h4>
@@ -483,7 +486,9 @@
         const keysList = getEl('keys-list');
         const exerciseView = getEl('exercise-view');
         const exerciseTitle = getEl('exercise-title');
-        const keyIconWrapper = getEl('key-icon-wrapper');
+        const keyToggle = getEl('key-toggle');
+        const keyCheckbox = getEl('key-checkbox');
+        const keyCheckboxLabel = getEl('key-checkbox-label');
         const exerciseExplanation = getEl('exercise-explanation');
         const exerciseReference = getEl('exercise-reference');
         const entryHistoryList = getEl('entry-history-list');
@@ -608,34 +613,41 @@
                     }
                 });
             } else {
-                keysList.innerHTML = `<li><p>You haven't marked any Key Exercises yet. Click the 
-                <svg viewBox="0 0 16 16" width="20" height="20" fill="var(--key-color)" style="display: inline-block; vertical-align: middle; margin: 0 4px;">
-                    <path d="M8 3a5 5 0 0 0-5 5v1h.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H3v1a5 5 0 0 0 5 5a5 5 0 0 0 5-5v-1h-.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H13v-1a5 5 0 0 0-5-5zM7 9a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"/>
-                </svg> 
-                icon on an exercise to add it here.</p></li>`;
+                keysList.innerHTML = `<li><p>You haven't marked any Key Exercises yet. Check the box at the top of an exercise page to add it here.</p></li>`;
             }
         }
 
         function toggleKey() {
-            if (currentExerciseId === null) return;
+            if (currentExerciseId === null) {
+                keyCheckbox.checked = false;
+                return;
+            }
+            keys = getKeys();
             const index = keys.indexOf(currentExerciseId);
-            if (index > -1) {
-                keys.splice(index, 1);
-            } else {
+            if (keyCheckbox.checked && index === -1) {
                 keys.push(currentExerciseId);
+            } else if (!keyCheckbox.checked && index > -1) {
+                keys.splice(index, 1);
             }
             saveKeys();
-            updateKeyIcon();
+            updateKeyToggle();
         }
 
-        function updateKeyIcon() {
-            if (keys.includes(currentExerciseId)) {
-                keyIconWrapper.classList.add('keyed');
-                keyIconWrapper.title = "Remove from Key Exercises";
-            } else {
-                keyIconWrapper.classList.remove('keyed');
-                keyIconWrapper.title = "Mark as a Key Exercise";
+        function updateKeyToggle() {
+            if (currentExerciseId === null) {
+                keyCheckbox.checked = false;
+                keyToggle.classList.remove('checked');
+                keyCheckboxLabel.textContent = 'Mark as Key Exercise';
+                keyToggle.title = "Mark as a Key Exercise";
+                return;
             }
+
+            keys = getKeys();
+            const isKeyed = keys.includes(currentExerciseId);
+            keyCheckbox.checked = isKeyed;
+            keyToggle.classList.toggle('checked', isKeyed);
+            keyCheckboxLabel.textContent = isKeyed ? 'Marked as Key Exercise' : 'Mark as Key Exercise';
+            keyToggle.title = isKeyed ? "Unmark as a Key Exercise" : "Mark as a Key Exercise";
         }
 
         // --- Navigation & Display ---
@@ -725,7 +737,7 @@
                 renderEntryHistory(currentExerciseId);
                 journalEntry.value = ''; // Clear textarea for new entry
 
-                updateKeyIcon();
+                updateKeyToggle();
                 welcomeView.style.display = 'none';
                 keysView.style.display = 'none';
                 exerciseView.style.display = 'block';
@@ -954,7 +966,7 @@
 
         homeButton.addEventListener('click', showWelcomeScreen);
         keysButton.addEventListener('click', showKeysScreen);
-        keyIconWrapper.addEventListener('click', toggleKey);
+        keyCheckbox.addEventListener('change', toggleKey);
         saveButton.addEventListener('click', saveEntry);
         
         historyButton.addEventListener('click', () => {
