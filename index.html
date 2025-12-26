@@ -43,7 +43,7 @@
         /* --- Main Layout (App Container) --- */
         .app-container {
             display: flex;
-            height: 100vh;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -107,7 +107,6 @@
             padding: 40px; 
             overflow-y: auto; 
             min-height: 0;
-            max-height: 100vh;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
         }
@@ -269,7 +268,7 @@
                 <input type="file" id="import-file-input" style="display: none;" accept=".json">
             </div>
 
-            <h3 style="text-align: center; color: var(--accent-color);">Spiritual Exercises</h3>
+            <h3 style="text-align: center; color: var(--heading-color);">Spiritual Exercises</h3>
             <nav id="navigation-menu"></nav>
         </aside>
 
@@ -281,7 +280,7 @@
                     <input type="text" id="name-input" placeholder="e.g., Jim, Jane, Ambassador for Christ">
                     <button id="name-submit" class="save-button">Begin</button>
                 </div>
-                <p id="welcome-message" style="display: none;">Select an exercise from the menu to begin.</p>
+                <p id="welcome-message" style="display: none;">Select an exercise from the menu to begin.<br><br>Tap any Spiritual Exercise to enter a journal entry for that exercise for the current day.<br><br>You can choose key exercises, for example, in areas in your life where you need to improve.</p>
             </div>
 
             <div class="keys-view" id="keys-view" style="display: none;">
