@@ -20,12 +20,18 @@
             --key-color: #c5a157;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: 'Source Sans 3', sans-serif;
             background-color: var(--primary-bg);
             color: var(--text-color);
             margin: 0;
             line-height: 1.6;
+            overflow: hidden;
+            overscroll-behavior: none;
         }
 
         h1, h2, h3, h4 {
@@ -52,6 +58,8 @@
             transition: transform 0.3s ease-in-out;
             display: flex;
             flex-direction: column;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }
 
         .sidebar-header { text-align: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
@@ -94,7 +102,15 @@
         .exercise-list-item .key-toggle-nav { margin-right: 10px; accent-color: var(--key-color); }
         
         /* --- Main Content Area --- */
-        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .main-content { 
+            flex-grow: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            min-height: 0;
+            max-height: 100vh;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
         .welcome-view, .exercise-view, .keys-view { max-width: 800px; margin: 0 auto; }
         
         /* Welcome & Keys View Styles */
