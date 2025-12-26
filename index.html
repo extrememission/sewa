@@ -708,6 +708,142 @@
             keyToggle.title = isKeyed ? "Unmark as a Key Exercise" : "Mark as a Key Exercise";
         }
 
+        // --- Daily Journal Logic ---
+        function buildDailyJournal() {
+            dailyMonths.innerHTML = '';
+            dailyMonthSelect.innerHTML = '<option value="">All months</option>';
+            dayDetail.style.display = 'none';
+            dailyDayIndex = {};
+
+            const days = {};
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (!key.startsWith('journalEntry-')) continue;
+
+                const exerciseId = parseInt(key.split('-')[1], 10);
+                const exercise = spiritualExercises.find(ex => ex.id === exerciseId);
+                if (!exercise) continue;
+
+                const entries = JSON.parse(localStorage.getItem(key)) || [];
+                entries.forEach(entry => {
+                    if (!entry.text) return;
+                    const when = new Date(entry.timestamp);
+                    const dateKey = when.toISOString().split('T')[0];
+
+                    if (!days[dateKey]) days[dateKey] = { date: new Date(dateKey), entries: [] };
+                    days[dateKey].entries.push({
+                        exerciseId,
+                        title: exercise.title,
+                        category: exercise.category,
+                        text: entry.text,
+                        timestamp: entry.timestamp
+                    });
+                });
+            }
+
+            const dayKeys = Object.keys(days).sort((a, b) => new Date(b) - new Date(a));
+            if (dayKeys.length === 0) {
+                dailyMonths.innerHTML = '<p class="muted">No journal entries yet. Add an entry to see it here.</p>';
+                return;
+            }
+
+            const months = {};
+            dayKeys.forEach(dateKey => {
+                const monthKey = dateKey.slice(0, 7); // YYYY-MM
+                if (!months[monthKey]) months[monthKey] = [];
+                months[monthKey].push(days[dateKey]);
+                dailyDayIndex[dateKey] = days[dateKey];
+            });
+
+            Object.keys(months).sort((a, b) => b.localeCompare(a)).forEach(monthKey => {
+                const monthLabel = new Date(`${monthKey}-01T00:00:00`).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+                const opt = document.createElement('option');
+                opt.value = monthKey;
+                opt.textContent = monthLabel;
+                dailyMonthSelect.appendChild(opt);
+
+                const monthGroup = document.createElement('section');
+                monthGroup.className = 'daily-month-group';
+                monthGroup.dataset.monthGroup = monthKey;
+
+                const header = document.createElement('div');
+                header.className = 'daily-month-header';
+                header.innerHTML = `<h3 class="daily-month-title">${monthLabel}</h3><span class="muted">${months[monthKey].length} day${months[monthKey].length === 1 ? '' : 's'} logged</span>`;
+                monthGroup.appendChild(header);
+
+                const grid = document.createElement('div');
+                grid.className = 'day-card-grid';
+
+                months[monthKey].forEach(day => {
+                    const uniqueExercises = [...new Set(day.entries.map(e => e.title))];
+                    const dateKey = day.date.toISOString().split('T')[0];
+                    const card = document.createElement('article');
+                    card.className = 'day-card';
+                    card.dataset.date = dateKey;
+                    card.innerHTML = `
+                        <div class="day-card-date">${day.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div class="day-card-weekday">${day.date.toLocaleDateString(undefined, { weekday: 'long' })}</div>
+                        <div class="day-card-total">${day.entries.length} entr${day.entries.length === 1 ? 'y' : 'ies'}</div>
+                        <div class="day-card-exercises">${uniqueExercises.map(name => `<span class="day-card-pill">${name}</span>`).join('')}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                monthGroup.appendChild(grid);
+                dailyMonths.appendChild(monthGroup);
+            });
+        }
+
+        function showDayDetail(dateKey) {
+            const day = dailyDayIndex[dateKey];
+            if (!day) return;
+
+            dayDetailTitle.textContent = day.date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            dayDetailBody.innerHTML = '';
+
+            const grouped = {};
+            day.entries.forEach(entry => {
+                if (!grouped[entry.exerciseId]) grouped[entry.exerciseId] = { title: entry.title, category: entry.category, entries: [] };
+                grouped[entry.exerciseId].entries.push(entry);
+            });
+
+            Object.values(grouped).forEach(group => {
+                const block = document.createElement('section');
+                block.className = 'day-exercise-block';
+                block.innerHTML = `
+                    <div class="day-exercise-title">
+                        <span>${group.title}</span>
+                        <span class="muted">${group.category}</span>
+                    </div>
+                `;
+                group.entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)).forEach(entry => {
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'day-entry';
+                    entryDiv.innerHTML = `
+                        <time>${new Date(entry.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</time>
+                        <div>${entry.text}</div>
+                    `;
+                    block.appendChild(entryDiv);
+                });
+                dayDetailBody.appendChild(block);
+            });
+
+            dayDetail.style.display = 'block';
+        }
+
+        function showDailyScreen() {
+            currentExerciseId = null;
+            exerciseView.style.display = 'none';
+            keysView.style.display = 'none';
+            welcomeView.style.display = 'none';
+            dayDetail.style.display = 'none';
+            dailyView.style.display = 'block';
+            document.querySelectorAll('.exercise-list-item a').forEach(a => a.classList.remove('active'));
+            buildDailyJournal();
+            if (window.innerWidth <= 768) sidebar.classList.remove('open');
+        }
+
         // --- Navigation & Display ---
         function populateNavMenu() {
             const categories = {};
@@ -1024,8 +1160,20 @@
 
         homeButton.addEventListener('click', showWelcomeScreen);
         keysButton.addEventListener('click', showKeysScreen);
+        dailyButton.addEventListener('click', showDailyScreen);
         keyCheckbox.addEventListener('change', toggleKey);
         saveButton.addEventListener('click', saveEntry);
+        dailyMonths.addEventListener('click', (e) => {
+            const card = e.target.closest('.day-card');
+            if (card) showDayDetail(card.dataset.date);
+        });
+        dailyMonthSelect.addEventListener('change', () => {
+            const monthId = dailyMonthSelect.value;
+            if (!monthId) return;
+            const section = dailyMonths.querySelector(`[data-month-group="${monthId}"]`);
+            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        dayDetailClose.addEventListener('click', () => dayDetail.style.display = 'none');
         
         historyButton.addEventListener('click', () => {
             filterHistory();
